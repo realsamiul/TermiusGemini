@@ -1,0 +1,78 @@
+**GEMINI.md — 5 edits**
+
+**1. SCRATCHPAD format is logically inconsistent (execution)**
+The template shows BRANCH A → BRANCH B → BACKTRACK (assumes B fails) → SYNTHESIS. A model following this literally generates a linear walkthrough with fake branching rather than actually backtracking. The backtrack needs to be inside each branch, not after both, or the whole point of non-linear reasoning collapses into theater.
+
+Change:
+```
+BRANCH A: [approach] → [promising / flawed: reason]
+  if flawed → BACKTRACK: [why, return to fork]
+BRANCH B: [approach] → [promising / flawed: reason]
+  if flawed → BACKTRACK: [why, try C or accept least-bad]
+SYNTHESIS: [chosen path and why]
+ACTION: [what you will do]
+```
+
+**2. Reflexion checklist item 4 is unenforceably vague (intent)**
+"Confidence stated = confidence actual?" — a model has no external calibration source mid-response. It will always pass this check by self-report. Replace with something the model can actually verify: *"If this code ran right now on a real input, would it execute end-to-end without hitting a TODO, a missing import, or an unhandled path?"* That's testable.
+
+**3. "Vibe comments" is invented jargon (execution)**
+A model may not parse it consistently. Change to: *"No what-comments. Comments state intent or non-obvious reasoning only. If the code is readable without the comment, delete the comment."*
+
+**4. No self-correction instruction (intent)**
+The file covers calibrated confidence going forward but has nothing about correcting prior session errors. A model will silently maintain a wrong answer from turn 2 at turn 15. Add to NEGATIVE CONSTRAINTS: *"If evidence in this session contradicts a prior answer, state the correction explicitly before proceeding. Never silently build on a known wrong premise."*
+
+**5. Context-rot trigger is passive (intent)**
+"whenever quality feels like it's slipping" puts the burden on the user to notice. The entire value of the protocol is automation. Change to: *"On any task rated 7+, emit [TASK STATE] unprompted at every 7th turn. Do not wait for the user to ask."* The model can count turns.
+
+---
+
+**DESIGN_SYSTEM.md — 3 edits**
+
+**6. Missing GSAP cleanup rule — will ship broken in Nuxt (execution)**
+This is the single most common production footgun in the Nuxt 3 + GSAP stack: ScrollTrigger instances not cleaned up on component unmount, causing duplicate triggers after navigation and memory leaks. Without this being explicit, the model will generate correct-looking code that breaks on the second page visit. Add to the GSAP Pattern Library section:
+
+```
+All GSAP animations must be wrapped in gsap.context() scoped to the component 
+root element. Call context.revert() in onUnmounted(). No exceptions.
+
+// Required pattern in every component using GSAP:
+const ctx = gsap.context(() => { /* all animations here */ }, rootEl)
+onUnmounted(() => ctx.revert())
+```
+
+**7. No touch fallback for cursor composables (execution)**
+Custom cursor effects don't exist on touch devices. `useMagneticButton` and `useCursorFollow` composables that run unconditionally will silently fail on mobile and can cause layout shifts. Add: *"All cursor composables must gate on `window.matchMedia('(pointer: fine)').matches` before initializing. Touch devices get no custom cursor behavior."*
+
+**8. `will-change` omission (execution)**
+GSAP + ScrollTrigger on complex scroll sequences without `will-change: transform` on animated elements causes paint thrashing — visible as jank on mid-tier hardware. This is not obvious. Add to the Motion Vocabulary section: *"Set `will-change: transform` on elements that will be animated by GSAP before the animation begins. Remove it after via `clearProps: 'will-change'` on animation complete."*
+
+---
+
+**CONTEXT_HANDOFF_TEMPLATE.md — 2 edits**
+
+**9. "Do NOT Re-Litigate" is at the bottom (intent)**
+The most common failure in a fresh session is the model re-evaluating settled architecture because it appears late in the context. Move it to second position, directly after Core Goal. Locked decisions need high attention weight.
+
+**10. Missing "Known Dead Ends" section (intent)**
+"Open Problems" and "Known Dead Ends" are different things. Open problems haven't been attempted. Dead ends were tried and failed. Without this, a fresh session attempts the same three-turn debugging rabbit hole the previous session already exhausted. Add:
+
+```
+## Known Dead Ends — Do Not Retry
+- [Approach tried] — [why it failed, what error/constraint blocked it]
+```
+
+---
+
+**README.md — 1 edit**
+
+**11. Missing third cause for previous files not working (intent)**
+The README correctly diagnoses token budget and positive-vs-negative framing. But there's a third cause: the Proposed files contained fenced code blocks inside markdown that itself was being loaded as GEMINI.md context. Gemini's markdown parser treats content inside triple-backtick blocks as literal text, not instructions. Any protocol that was formatted as a code block (the SCRATCHPAD format, the REFLECTION checklist, the SPEC format) was being read as example text rather than behavioral instruction. The fixed GEMINI.md avoids this by keeping all formats as inline monospace or plain text, not fenced blocks. Add this to the "Why You Weren't Seeing a Difference" section — it explains something the user has probably encountered and is a concrete, actionable diagnostic.
+
+---
+
+**What doesn't need changing:**
+
+GEMINI.md's token budget, the supplement-over-override decision, the domain heuristics structure, and the four verification tests in the README are all correct. DESIGN_SYSTEM.md's easing values, duration table, spacing system, and typography grammar are production-accurate. The CONTEXT_HANDOFF template structure is sound beyond the two edits above.
+
+The eleven edits above are the delta between "it mostly works" and "it works reliably." Edits 1, 6, 7, and 8 are the ones that would cause silent production failures. Everything else is intent hardening.
