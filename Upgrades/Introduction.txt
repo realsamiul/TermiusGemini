@@ -1,0 +1,160 @@
+QUESTION: I would like to be very exact here. Can I have set off Gemini CLI on a Vm connected to my Google Cloud Console using the credits? Right? I'm using the three point one Pro preview model. I have a lot of work coming up ahead in, like, coding, web dev, and such, but I want to implement some best practices and enforce some clever upgrades to the current model. For example, Opus four point seven is considered, like, the highest performing model there is right now for coding, web dev, just a standard intelligence. What are we to upgrade Gemini's current situation using, say, skills, GitHub repos, or whatever. Right? What are ways to implement frameworks, coding powers, everything. Right? Decision making. Second issue is that a memory issue. Right? I've noticed that memory can often impair, you know, decision making and problem solving for AI agents, like a fresh session using the same model can actually get better ideas than the session that is nine hours deep within it. See, I would rather that, say, like my current one, use memory as a friends only and not let it impair thinking. Right? So that leads me into my asking guidance on how to set up, you know, the Gemini, the reference file, the instructions file for just absolute maximum powers. Right? And the third thing that I would want help with is design aesthetics. Right? A lot of my work will have a front end element to it. If you look at awards winning sites of the day, agency websites, right, like XOAPE, they use certain settings that are really not standard. It's very counterintuitive the way they look at scrolling, scrubbing, you know, layouts, responsiveness, animations - I do have a crude process to extract a given site using design dna and asking Gemini to recreate the original Nuxt code using the published js file but that is copying not intelligence design systems - how do you build that maybe like feed in 10/12 web apps and websites and apps and such and it creates a running base of world class animation layouts colors fonts gsap etc.
+
+
+ANSWER: Three meaty questions — let me give you a proper answer on each.
+
+---
+
+## 1. Gemini CLI on GCP VM — Upgrading Its Capabilities
+
+Yes, you can run Gemini CLI on a GCP VM and charge it to your credits. The `gemini-2.5-pro-preview` model you're on is already the ceiling of what Google offers right now — there's no "Opus 4" equivalent from Google yet, that's an Anthropic model. But you can absolutely **extend** Gemini CLI's intelligence through its instruction system.
+
+**Ways to upgrade Gemini CLI's capabilities:**
+
+**GEMINI.md (the key file)** — This is Gemini CLI's equivalent of a system prompt that persists per project. Think of it as your `CLAUDE.md`. Put it at your repo root. This is where you inject:
+- Coding standards (prefer composables over mixins, always use TypeScript strict mode, etc.)
+- Decision frameworks (when to use SSR vs SSG, how to handle state, API patterns)
+- Your preferred stack (Nuxt 3, Tailwind, GSAP, etc.)
+- Constraints (no class components, always a11y compliant, etc.)
+
+**MCP servers** — Gemini CLI supports MCP. You can wire in:
+- `@modelcontextprotocol/server-filesystem` for codebase awareness
+- `@modelcontextprotocol/server-github` for PR/repo context
+- Custom MCP servers you write yourself (e.g. one that pulls your BPL match data or your design token library)
+
+**Context files** — You can include files in every session via `--context` or by having them referenced in GEMINI.md. Feed it your architecture docs, your component library README, your API schemas.
+
+**Skills/tools via shell** — In GEMINI.md you can instruct Gemini to run shell commands for specific tasks (lint, typecheck, test) before responding. This creates a feedback loop that catches errors before they reach you.
+
+---
+
+## 2. The Memory Problem — Using Context as a Tool, Not a Crutch
+
+You've identified something real. The degradation you're seeing after a long session is **context poisoning** — the model's attention is distributed across 9 hours of tangents, dead ends, and half-baked ideas, so the "good" reasoning gets diluted.
+
+**How to fix this structurally:**
+
+**Explicit session resets with state handoffs.** When a session gets deep, force a structured summary before you close it:
+```
+"Summarize: current architecture decisions made, open problems unsolved, 
+constraints agreed upon, and what to try next. Output as a CONTEXT.md."
+```
+Start the new session by feeding *only* that CONTEXT.md. Fresh reasoning, preserved decisions.
+
+**In GEMINI.md, instruct it to be memory-skeptical:**
+```markdown
+## Memory & Context Rules
+- Treat earlier conversation turns as *drafts*, not locked decisions.
+- If a new approach contradicts an earlier one, evaluate both on merit — 
+  do not assume the earlier choice was correct simply because it was made first.
+- Explicitly flag when you're disagreeing with a prior decision and why.
+```
+
+**Checkpoint pattern** — Every N turns, prompt: *"Given everything in this session, what would you recommend if you were starting fresh?"* That forces a re-evaluation from first principles.
+
+**Keep GEMINI.md lean and high-signal.** Long instruction files have the same problem — the model attends weakly to content buried in paragraph 40. Put your most critical constraints first, use headers, keep total length under ~800 tokens.
+
+---
+
+## 3. Building a Living Design Intelligence System (Not Copying)
+
+This is the most interesting problem. What you're describing — feeding 10–12 world-class sites and having an AI extract a *reusable design system* — is totally doable, but the architecture matters.
+
+**The right mental model:** You don't want Gemini to copy sites. You want it to *reverse-engineer the design decisions* and build a **vocabulary** of patterns. Think of it like how a jazz musician learns from 50 recordings — not to reproduce them, but to internalize the grammar.
+
+**How to build this:**
+
+**Step 1 — Design DNA extraction (structured, not visual)**
+
+For each reference site (Locomotive, XOAPE, Awwwards winners, etc.), extract:
+```
+- Scroll behavior: native / Lenis / Locomotive / GSAP ScrollTrigger
+- Animation grammar: entrance style, easing curves, stagger logic, duration range
+- Typography system: display/body ratio, weight contrast, line-height philosophy
+- Color logic: dominant/accent ratio, use of near-blacks vs true blacks, gradient use
+- Layout grammar: grid type, breakpoint philosophy, asymmetry patterns
+- Interaction vocabulary: cursor behavior, hover states, parallax depth
+```
+You can do this manually for 10 sites in a day. It becomes your ground truth.
+
+**Step 2 — Build a DESIGN_SYSTEM.md**
+
+Synthesize the extractions into a single canonical file that lives in your project (or as an MCP resource). Not "copy site X" but "the sites I admire share these patterns":
+```markdown
+## Motion Vocabulary
+- Entrance easing: cubic-bezier(0.16, 1, 0.3, 1) — fast out, no bounce
+- Stagger: 80–120ms between siblings, never uniform
+- Duration range: 600ms (micro) → 1200ms (hero reveals)
+- Scroll scrub ratio: 0.8–1.2, never mechanical 1:1
+
+## Typography Grammar  
+- Display: high contrast, tight tracking (-0.02em to -0.04em), large optical size
+- Body: generous line-height (1.6–1.75), medium weight, breathing room
+...
+```
+
+**Step 3 — GSAP + Nuxt pattern library**
+
+Build a small repo of ~15 composables/components that encode these patterns:
+- `useScrollReveal(el, options)` — wraps GSAP ScrollTrigger with your vocabulary
+- `useMagneticButton(el)` — cursor magnetism
+- `useParallaxLayer(el, depth)` — depth-aware parallax
+- `SplitTextReveal.vue` — text entrance with your easing
+- `LenisProvider.vue` — smooth scroll wrapper
+
+Feed this repo to Gemini via MCP or `--context`. Now when you say "add a hero section," it's drawing from *your* design system, not generic output.
+
+**Step 4 — The intelligence layer**
+
+In GEMINI.md:
+```markdown
+## Design System
+Always reference DESIGN_SYSTEM.md before building any frontend component.
+When implementing animations, use the motion vocabulary defined there — 
+do not default to linear/ease or arbitrary durations.
+Prefer composables from /lib/design/ over inline GSAP.
+When making layout decisions, reference the asymmetry and grid patterns 
+in the design system, not Bootstrap-style thinking.
+```
+
+This is how you get *principled* design output rather than copied or generic output. The model is reasoning from your curated grammar, not hallucinating aesthetics.
+
+---
+
+**TL;DR on all three:**
+
+| Problem | Solution |
+|---|---|
+| Upgrading Gemini | GEMINI.md + MCP servers + context files injecting your stack/standards |
+| Memory poisoning | Session handoff docs + instruct skepticism toward prior turns + checkpoint re-evals |
+| Design intelligence | Extract design grammar (not visuals) from 10–12 sites → DESIGN_SYSTEM.md → GSAP composable library → feed as context |
+
+Want me to draft the actual GEMINI.md for you, or build out the DESIGN_SYSTEM.md template with extraction prompts for each of the sites you're studying?
+
+Good — I have enough to give you a precise, actionable synthesis. Let me build this out properly.Good — now I'll build this as a comprehensive visual reference document.Here's the synthesis across all three tiers, with everything sourced and linked.
+
+**The single biggest unlock you're probably not using:**
+
+Gemini 2.5 Pro responds far better in AI Studio and via direct API calls (with custom instructions) than inside Gemini CLI — and the reason turns out to be the built-in system prompt, which is biased toward vibe coding and generic web stacks, with mixed signals that throw off complex or specialized work. The fix is `GEMINI_SYSTEM_MD`.
+
+The `GEMINI_SYSTEM_MD` variable instructs the CLI to use an external Markdown file for its system prompt, completely overriding the built-in default — this is a full replacement, not a merge. If you use a custom file, none of the original core instructions apply unless you include them yourself. When a custom prompt is active, the CLI footer displays a `|⌐■_■|` indicator — a persistent visual confirmation of the modified operational state.
+
+**Critical detail on doing this safely:** Replacing the system prompt without properly reviewing it beforehand is not a good idea — there are specific and detailed instructions in the core system prompt essential for the proper functioning of Gemini CLI. Export the default first with `/memory show`, then surgically modify it. Use `${AgentSkills}` and `${AvailableTools}` to inject Gemini's own built-in capabilities back in.
+
+**For the intelligence framework layer**, the three repos that matter most are:
+
+- **[EliFuzz/awesome-system-prompts](https://github.com/EliFuzz/awesome-system-prompts)** — actual leaked prompts from Cursor, Claude Code, Devin, Gemini, Codex. Read these the way you'd read a competitor's playbook. The structural patterns in Augment Code's GPT-5 and Claude Sonnet 4 prompts are the closest thing to a "how do frontier coding agents actually think" reference that exists publicly.
+
+- **[Piebald-AI/claude-code-system-prompts](https://github.com/Piebald-AI/claude-code-system-prompts)** — the most complete reference architecture. This covers all parts of Claude Code's system prompt, 27 built-in tool descriptions, sub-agent prompts for Plan/Explore/Task modes, utility prompts for CLAUDE.md creation, code review, memory synthesis, and managed agent onboarding. Mine this for structural patterns to adapt into your `system.md`.
+
+- **[sickn33/antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills)** — an installable GitHub library of 1,400+ agentic SKILL.md playbooks designed for Claude Code, Cursor, Codex CLI, Gemini CLI, and others. Run `npx antigravity-awesome-skills --gemini` to target the Gemini CLI skills directory directly.
+
+**The three reasoning patterns worth embedding above all others for your domains:**
+
+1. **ReAct (Reason → Act → Observe)** — from the foundational paper behind most agent frameworks. Before writing code, state what you're solving, what approach and why, and what you're explicitly NOT doing. Eliminates first-draft mediocrity.
+
+2. **Reflexion** — after completing any task, evaluate against explicit criteria before presenting. Self-correction baked into the loop rather than requiring human re-prompting.
+
+3. **Spec-first discipline** — write inputs/outputs/constraints before any implementation. Spec Kit (50k+ GitHub stars) resonated because it brings order to AI-assisted coding, helping developers avoid "prompt-and-pray" by embedding agents in a predictable development process, treating specs as executable artifacts rather than throwaway docs.
+
+Want me to draft the actual `system.md` file for your specific stack (Nuxt, ML/geospatial, BPL analytics)? That's where all of this becomes concrete.
