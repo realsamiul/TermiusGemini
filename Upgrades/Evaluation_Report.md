@@ -25,8 +25,21 @@ My internal knowledge validates the references used in these proposals:
 To fully actualize the Proposed3.md framework in Gemini CLI:
 
 1.  **Global System Prompt Override:** The user should save Proposed3.md as ~/.gemini/GEMINI.md to ensure these behaviors apply across all projects.
-2.  **Strict Mode Enablement:** Ensure that the built-in CLI tokens (`${AgentSkills}` and `${SubAgents}`) are preserved exactly as shown.
+2.  **Strict Mode Enablement:** Ensure that the built-in CLI tokens (AgentSkills and SubAgents) are preserved exactly as shown.
 3.  **Skill Synergies:** The user should build a design-system skill to compliment this framework, moving the heavy CSS/Nuxt/GSAP guidelines out of the main prompt to save context, loading them only when UI work is requested.
 
 ## Conclusion
 The Proposed3.md file represents an elite-tier configuration. If implemented, it will successfully upgrade Gemini 3.1 Pro into a highly deliberate, senior-level engineering agent.
+
+## 5. Q&A on Implementation & Safety
+
+**Q1: How do I export the current system prompt as a safety measure? Does tmux affect this?**
+- **How & Where:** You run the command *inside* the interactive Gemini CLI (not in the standard VM bash shell). Type `/memory show` (or `/system` depending on your CLI version) to view the default system instructions. Copy and save this output to a safe file (e.g., `default_system_backup.md`) on your VM before overriding it. 
+- **Tmux:** Tmux is just a terminal multiplexer (a window manager for your terminal). It does not affect how the CLI, its settings, or its file paths work. Your commands will function exactly the same inside or outside of tmux.
+
+**Q2: Is Proposed3.md ready as-is? Are there missing elements or formatting issues?**
+- **Readiness:** Yes, Proposed3.md is practically ready for production. It correctly includes the crucial `${AgentSkills}` and `${SubAgents}` template variables required for the CLI to function.
+- **Formatting & Naming:** The markdown formatting is clean and structurally sound. However, for the CLI to automatically detect and apply it, the file must be named exactly `GEMINI.md`. I am creating a finalized, polished version of this file named `GEMINI.md` in this repository for you to download and use directly.
+
+**Q3: Does this custom system file cover all models (e.g., switching from 3.1 Pro to 3.5 Flash)?**
+- **Yes.** The `GEMINI.md` file operates at the CLI level, acting as the universal system prompt for the application framework. Whether you tell the CLI to route your request to `gemini-3.1-pro-preview` or `gemini-3.5-flash`, the CLI will package this exact `GEMINI.md` framework and send it to whichever model is currently active.
