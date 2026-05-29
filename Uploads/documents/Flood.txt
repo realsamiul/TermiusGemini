@@ -1,0 +1,7 @@
+A few notes on how to use these:
+
+The long version is structured for a portfolio page, a LinkedIn project section, or a detailed proposal where a client wants to understand your thinking process. The "physics-informed pseudo-labelling" and "uncertainty quantification" sections are your strongest talking points — use those phrases explicitly because they signal awareness of real ML engineering concerns, not just tutorial-level work.
+
+The short version is for your Toptal profile bio, the "about this project" blurb on GitHub, or an intro paragraph in a freelance proposal. It's dense but everything in it is defensible from the code.
+
+One addition I made that wasn't in your original framing: the "scale and scope" metrics at the bottom. Zero paid cloud spend building something this architecturally sophisticated is actually a differentiator on freelance platforms — it signals resource efficiency, which clients care about a lot.
