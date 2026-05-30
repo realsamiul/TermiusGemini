@@ -1,3 +1,110 @@
+
+from Flood folder:
+Strongest pieces to feature, ranked:
+
+06_train_transformer.py + 02_demo_model_train.py (flood 2) — shows architecture thinking
+00_discover_bangladesh_floods.py — elegant, real-world GEE query design
+The preprocessing pipeline (02_preprocess_bangladesh.py) — the quality filtering logic is solid
+
+
+Kalopathor Engines project summary — long and short versions
+LONG VERSION
+
+CORE IDEA
+Geospatial AI for climate risk in South Asia
+
+A self-funded, free-tier geospatial AI platform that answers a real question: can a single developer with no cloud budget produce production-grade satellite intelligence for flood detection, disease forecasting, and crop stress monitoring in Bangladesh and the wider region? The answer was yes — by combining freely available government satellite data (Sentinel-1/2, SRTM DEM), public health records (1,084 DGHS PDFs), and a pipeline architecture that stays under API quotas while still training real deep learning models and generating interactive dashboards.
+The underlying insight was that weak supervision beats no supervision: when ground truth labels don't exist, physical domain knowledge (low SAR backscatter = water, NDWI threshold, flat slope) can generate pseudo-labels good enough to bootstrap a segmentation model that generalizes.
+TECHNICAL STACK
+Satellite & geospatial data
+
+Google Earth Engine (Python API) for image acquisition, compositing, and download. Sentinel-1 SAR (VV/VH, 10m), Sentinel-2 optical (RGB+NIR+SWIR, 10–30m), SRTM Digital Elevation Model, JRC Global Surface Water, MODIS flood products, NASA VIIRS nightlight radiance.
+Google Earth Engine
+Sentinel-1 SAR
+Sentinel-2
+SRTM DEM
+MODIS
+VIIRS nightlights
+Deep learning & ML
+
+PyTorch (2.8) as the core framework. SegFormer (Hugging Face Transformers) for semantic segmentation. segmentation_models_pytorch (UNet, EfficientNet encoder) for change detection. scikit-learn for Gaussian Process Regression (dengue forecasting), causal discovery via lagged correlation, and K-Means clustering (crop stress). Numba JIT for preprocessing speed.
+PyTorch 2.8
+SegFormer
+segmentation-models-pytorch
+scikit-learn
+Hugging Face Transformers
+Numba
+Data processing & engineering
+
+pandas, numpy, scipy for pipeline data wrangling. OpenCV and PyMuPDF for image processing and bulk PDF text extraction (1,084 government health reports). rasterio for GeoTIFF I/O. OpenWeatherMap API for live weather ingestion. World Bank & BBS census APIs.
+pandas
+numpy
+scipy
+OpenCV
+PyMuPDF
+rasterio
+OpenWeatherMap API
+Visualisation & deployment
+
+Plotly (interactive dashboards with animated timelines), Matplotlib/Seaborn (static charts), Folium/ipyleaflet (geospatial maps), Streamlit-Folium. Output as self-contained HTML dashboards with a custom Next.js 14 + Tailwind + shadcn/ui frontend strategy (planned unified dashboard). Vercel for deployment target.
+Plotly
+Folium
+Next.js 14
+Tailwind
+shadcn/ui
+TECHNICAL METHODS — THE SUBSTANCE
+Physics-informed pseudo-labelling (flood)
+
+No hand-labeled flood masks existed. Instead of skipping training entirely, I derived a defensible pseudo-mask from three independent physical signals simultaneously: low SAR VV backscatter (water absorbs radar), positive NDWI from optical bands (green/NIR water index), and near-zero terrain slope from DEM. Only pixels satisfying all three were treated as flood. This is a weak supervision strategy that makes the label noise systematic rather than random — the model learns to trust coherent physics, not noisy annotations.
+Multi-modal feature fusion (flood)
+
+Rather than treating SAR and optical as independent models, inputs were fused at the pixel level into a 3-channel stack (VV backscatter, optical RGB/NIR, SAR change magnitude = |flood VV − pre-flood VV|). This forces the segmentation backbone to learn cross-modal correlations — the change channel is especially powerful because it encodes temporal delta, not just snapshot state.
+Transformer segmentation with uncertainty
+
+SegFormer-B2-lite was selected over a vanilla UNet because its hierarchical attention naturally handles the multi-scale spatial patterns in flood imagery (large connected water bodies + narrow drainage channels). An explicit uncertainty head was added on top of the final encoder hidden state, outputting an epistemic uncertainty map (model confidence) and an aleatoric map (data noise). This is portfolio-relevant because most junior geospatial models report only a single prediction; uncertainty quantification is the difference between a research demo and a deployable disaster management tool.
+Causal discovery + Gaussian Process forecasting (dengue)
+
+1,084 official DGHS PDF reports were bulk-extracted using PyMuPDF to build a 3-year daily dengue time series for Dhaka. Rather than a naive regression, the system ran lagged cross-correlation across all variable pairs (temperature, humidity, rainfall, nightlight radiance, population density) to build a causal graph of disease-environment relationships. A Gaussian Process Regressor with RBF + WhiteKernel was then fitted for the 14-day forecast, providing calibrated confidence intervals — not just point predictions.
+Self-supervised + unsupervised crop intelligence
+
+For crop stress detection in Jessore, there were no stress labels at all. SimSiam self-supervised contrastive learning was used to pre-train the SegFormer backbone on unlabeled Sentinel-2 tiles (learning representations without any labels). K-Means clustering was then applied to the learned embeddings to discover latent stress zones. The result is an entirely annotation-free pipeline — practical for real agricultural monitoring where ground surveys are expensive.
+WHAT WAS GOOD / WHAT I'D DO DIFFERENTLY
+WHAT WORKED WELL
+Physics-informed pseudo-labelling was the right instinct — it's now mainstream (NeurIPS 2023)
+Real data end-to-end: 1,084 PDFs, live GEE API, real flood events
+Fallback acquisition chain (NPY → GeoTIFF → PNG) showed mature API handling
+Uncertainty quantification beyond just a prediction mask
+Domain specificity (Bangladesh) — rare, defensible, real impact
+Full pipeline thinking: discover → pull → preprocess → train → export → dashboard
+Free-tier constraint forced efficient design (small models, tiled inference)
+WHAT I'D DO DIFFERENTLY NOW
+Separate configs from code — no hardcoded API keys or project IDs anywhere
+Replace synthetic data fallback in run_demo.py with an honest "data unavailable" error
+Pick one canonical script per stage, archive iteration variants with git branches
+Evaluate on a held-out geographic region (not just held-out tiles) for real generalisation
+Use MLflow or W&B for experiment tracking instead of JSON files
+Containerise with Docker so the environment is reproducible, not a 80-package venv
+Write a proper model card: what data, what assumptions, known failure modes
+Report per-class IoU separately — aggregate mIoU hides class imbalance problems
+SCALE & SCOPE (AT-A-GLANCE)
+4
+AI subsystems
+1,084
+PDFs extracted
+434
+satellite tiles trained
+0
+paid cloud spend
+SHORT VERSION — COPY-PASTE READY
+
+Core idea: Built a geospatial AI platform for climate and public health risk in Bangladesh — flood detection, dengue forecasting, and crop stress monitoring — entirely on free-tier infrastructure (Google Earth Engine, PyTorch, open satellite data). The key insight: physical domain rules as weak supervision make labeled training data optional.
+
+Stack: PyTorch · SegFormer · segmentation-models-pytorch · Google Earth Engine API · Sentinel-1/2 · SRTM DEM · scikit-learn (GP regression, K-Means) · Hugging Face Transformers · PyMuPDF · Plotly · Next.js 14 · Tailwind
+
+Methods: Physics-informed pseudo-labelling for flood segmentation (SAR backscatter + NDWI + terrain slope), multi-modal SAR/optical feature fusion, SegFormer with epistemic + aleatoric uncertainty heads, Gaussian Process 14-day dengue forecasting from 1,084 extracted government PDFs, and SimSiam self-supervised pre-training for annotation-free crop stress discovery.
+
+What I learned: Weak supervision and domain physics beat waiting for labels. On a redo: secrets in env vars, one canonical script per stage, Docker for reproducibility, held-out regional evaluation (not just held-out tiles), and MLflow for experiment tracking.
+
 A few notes on how to use these:
 
 The long version is structured for a portfolio page, a LinkedIn project section, or a detailed proposal where a client wants to understand your thinking process. The "physics-informed pseudo-labelling" and "uncertainty quantification" sections are your strongest talking points — use those phrases explicitly because they signal awareness of real ML engineering concerns, not just tutorial-level work.
