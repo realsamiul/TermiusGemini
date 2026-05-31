@@ -1,0 +1,90 @@
+DOCRAG-LEGAL: MANUAL CONFIGURATION & POST-FLIGHT INSTRUCTIONS
+============================================================
+
+These are the manual configuration steps that must be performed by you (the operator) 
+to finalize the Firebase authentication, Admin SDK credentials, and Secret Manager 
+registrations. Once these are done, the remaining build automation can run.
+
+Active GCP Project: project-a1f62154-a7ad-4b37-93b
+Active Service Account: docrag-sa@project-a1f62154-a7ad-4b37-93b.iam.gserviceaccount.com
+
+--------------------------------------------------------------------------------
+STEP A: FIREBASE CONSOLE SETUP (~10 minutes)
+--------------------------------------------------------------------------------
+1. Open your browser and navigate to the Firebase Console:
+   https://console.firebase.google.com/
+
+2. Click "Add Project" and select your active Google Cloud project:
+   --> Select: "project-a1f62154-a7ad-4b37-93b" (named "DocRAG Legal")
+
+3. Navigate to Build ➔ Authentication ➔ Sign-in method.
+   --> Click "Email/Password" and click Enable. Save changes.
+
+4. Navigate to Users tab and click "Add user":
+   - Email: test@docrag.dev
+   - Password: TestPass123! (or any password of your choosing)
+   - Copy the newly created user's "UID" string (you will need it for STEP C).
+
+5. Navigate to Project Settings (gear icon in left sidebar) ➔ Service Accounts.
+   --> Click "Generate new private key".
+   --> Click "Generate key" and save the downloaded JSON file to your local machine.
+
+--------------------------------------------------------------------------------
+STEP B: PLACE THE PRIVATE KEY JSON ON THE VM (~2 minutes)
+--------------------------------------------------------------------------------
+Copy the text inside your downloaded Firebase credentials JSON file and save it 
+to the VM at: ~/docrag-legal/secrets/firebase-key.json
+
+Run this command in Termius:
+cat > ~/docrag-legal/secrets/firebase-key.json << 'EOF'
+<PASTE YOUR COPIED FIREBASE KEY JSON TEXT HERE>
+EOF
+
+--------------------------------------------------------------------------------
+STEP C: SET CUSTOM USER ADMIN CLAIMS (~2 minutes)
+--------------------------------------------------------------------------------
+Execute this Python one-liner in Termius to tag your user as an admin in Firebase.
+Make sure to replace "PASTE_YOUR_TEST_USER_UID_HERE" with the UID from Step A.4:
+
+/home/realsamkarim/.venv/bin/python - <<'EOF'
+import firebase_admin
+from firebase_admin import credentials, auth
+import json
+
+cred_path = "/home/realsamkarim/docrag-legal/secrets/firebase-key.json"
+cred = credentials.Certificate(cred_path)
+firebase_admin.initialize_app(cred)
+
+# REPLACE with the User UID from your Firebase console
+uid = "PASTE_YOUR_TEST_USER_UID_HERE" 
+
+auth.set_custom_user_claims(uid, {"role": "admin"})
+print(f"Successfully set admin role for Firebase User: {uid}")
+EOF
+
+--------------------------------------------------------------------------------
+STEP D: SECURE FIREBASE CREDENTIALS IN SECRET MANAGER (~2 minutes)
+--------------------------------------------------------------------------------
+Execute this command on your VM to upload the key securely into Google Secret Manager:
+
+gcloud secrets create firebase-creds \
+  --data-file=/home/realsamkarim/docrag-legal/secrets/firebase-key.json \
+  --project="project-a1f62154-a7ad-4b37-93b"
+
+--------------------------------------------------------------------------------
+STEP E: SEED DOCUMENT INGESTION & CORPORA REGISTRY (When you have the PDFs)
+--------------------------------------------------------------------------------
+Once you have downloaded your legal statutes and NDAs/contracts and placed them 
+in ~/docrag-legal/seed_docs/statutes/ and ~/docrag-legal/seed_docs/contracts/ 
+respectively, run this terminal sequence:
+
+1. Bulk upload seed PDFs to GCS:
+   gsutil -m cp ~/docrag-legal/seed_docs/statutes/*.pdf gs://project-a1f62154-a7ad-4b37-93b-docs/statutes/
+   gsutil -m cp ~/docrag-legal/seed_docs/contracts/*.pdf gs://project-a1f62154-a7ad-4b37-93b-docs/contracts/
+
+2. Register the Statutory and Contracts RAG Corpora on Vertex AI:
+   export PROJECT_ID="project-a1f62154-a7ad-4b37-93b"
+   /home/realsamkarim/.venv/bin/python /home/realsamkarim/docrag-legal/scripts/create_corpus.py
+
+3. Run Bulk Import from GCS into the newly registered corpora:
+   /home/realsamkarim/.venv/bin/python /home/realsamkarim/docrag-legal/scripts/ingest_seed.py
