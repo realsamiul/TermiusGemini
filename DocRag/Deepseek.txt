@@ -1,0 +1,598 @@
+Final File Contents for Upload
+
+You will upload a ZIP containing 6 files (the 4 protected files + AGENT_CONTEXT.md + run_build.sh).
+You do NOT need to upload MASTER_PLAN.md – it’s the original long file you already have. Just place it in the same directory on Cloud Shell before unzipping (or include it if you want; but you have it).
+
+File 1: AGENT_CONTEXT.md
+
+```markdown
+# DocRAG-Legal – Agent Build Context
+
+**First read `MASTER_PLAN.md` in the same directory.** Use it as the blueprint.
+
+## Non‑negotiable constraints (overrides master plan)
+- Storage: **Modal only** – ignore all Oracle references.
+- Use `from services.storage import store_interaction, store_risk_score, register_document, …`
+- Auth: `from middleware.auth import require_role`
+- Gemini clients: lazy init via `from services.gemini import get_pro, get_flash`
+- Never call `vertexai.init()` outside `services/gemini.py`.
+- All Pydantic models in `models/schemas.py` (see below).
+- All Vertex AI calls wrapped with `@with_retry` from `utils/retry.py`.
+- Use `response_mime_type="application/json"` on all Flash structured output.
+- Temperatures: Pro synthesis 0.1, Flash 0.0.
+
+## Directory structure (adhere to this)
+```
+
+backend/
+├── main.py
+├── requirements.txt
+├── Dockerfile
+├── .env
+├── middleware/auth.py
+├── routers/
+│   ├── query.py (protected – do not regenerate)
+│   ├── risk.py
+│   ├── redline.py
+│   ├── ingest.py
+│   └── eval.py
+├── services/
+│   ├── gemini.py (protected)
+│   ├── rag.py (protected)
+│   ├── eval_judge.py (protected)
+│   ├── rerank.py
+│   └── storage.py
+├── models/schemas.py
+└── utils/retry.py
+frontend/
+scripts/
+seed_docs/
+
+```
+
+## Schemas (source of truth – copy exactly)
+```python
+from pydantic import BaseModel
+from typing import Optional, List
+from enum import Enum
+
+class CorpusType(str, Enum):
+    statutes = "statutes"
+    contracts = "contracts"
+
+class QueryRequest(BaseModel):
+    question: str
+    session_id: str
+    corpus_type: CorpusType = CorpusType.statutes
+    doc_type_filter: Optional[str] = None
+
+class SourceRef(BaseModel):
+    index: int
+    doc_title: str
+    retrieval_score: float
+    text_preview: str
+    chunk_hash: int
+
+class EvalResult(BaseModel):
+    faithfulness_score: float
+    citations_accurate: dict
+    adversarial_challenge: str
+    verdict: str
+    provenance_hash: str
+
+class QueryResponse(BaseModel):
+    answer: str
+    sources: List[SourceRef]
+    eval: EvalResult
+    session_id: str
+
+class RiskRequest(BaseModel):
+    clause_text: str
+    doc_id: Optional[str] = None
+    clause_ref: Optional[str] = None
+
+class RedlineRequest(BaseModel):
+    clause_text: str
+    doc_id: Optional[str] = None
+    clause_ref: Optional[str] = None
+    compliance_target: Optional[str] = None
+
+class RedlineIssue(BaseModel):
+    issue_type: str
+    severity: str
+    original_text: str
+    explanation: str
+    suggested_replacement: str
+    statute_ref: Optional[str] = None
+
+class RedlineResponse(BaseModel):
+    original_clause: str
+    issues: List[RedlineIssue]
+    rewritten_clause: str
+    risk_delta: str
+    confidence: float
+```
+
+Environment variables expected
+
+PROJECT_ID, REGION, GCS_BUCKET, CORPUS_STATUTES, CORPUS_CONTRACTS,
+FIREBASE_CREDENTIALS_JSON, MODAL_TOKEN_ID, MODAL_TOKEN_SECRET, APP_ENV
+
+Safety constraints
+
+· Never run gcloud ... --quiet on delete operations.
+· Never run gsutil rm -r.
+· Never modify IAM policies beyond what is specified.
+· If uncertain about a destructive operation, stop and ask.
+
+```
+
+---
+
+### File 2: `protected/gemini.py`
+
+```python
+import os
+from typing import Optional
+
+_initialized = False
+_pro_client = None
+_flash_client = None
+
+def _ensure_init():
+    global _initialized, _pro_client, _flash_client
+    if _initialized:
+        return
+    import vertexai
+    from vertexai.generative_models import GenerativeModel, GenerationConfig
+    vertexai.init(
+        project=os.environ["PROJECT_ID"],
+        location=os.environ.get("REGION", "us-central1")
+    )
+    _pro_client = GenerativeModel(
+        "gemini-1.5-pro-002",
+        generation_config=GenerationConfig(temperature=0.1, max_output_tokens=2048)
+    )
+    _flash_client = GenerativeModel(
+        "gemini-1.5-flash-002",
+        generation_config=GenerationConfig(temperature=0.0, max_output_tokens=1024)
+    )
+    _initialized = True
+
+def get_pro():
+    _ensure_init()
+    return _pro_client
+
+def get_flash():
+    _ensure_init()
+    return _flash_client
+```
+
+---
+
+File 3: protected/rag.py
+
+```python
+import vertexai
+from vertexai import rag
+import re
+from typing import Optional
+
+ALPHA_DEFAULT = 0.6
+ALPHA_CITATION = 0.35
+
+def detect_alpha(query: str) -> float:
+    if re.search(r"section\s+\d+|§\s*\d+|article\s+\d+|clause\s+\d+", query.lower()):
+        return ALPHA_CITATION
+    return ALPHA_DEFAULT
+
+async def retrieve(
+    query: str,
+    corpus_name: str,
+    top_k: int = 20,
+    doc_type_filter: Optional[str] = None
+) -> list:
+    alpha = detect_alpha(query)
+    retrieval_config = rag.RagRetrievalConfig(
+        top_k=top_k,
+        alpha=alpha,
+        filter=rag.Filter(
+            vector_distance_threshold=0.4,
+            metadata_filters=[{"key": "doc_type", "value": doc_type_filter}]
+            if doc_type_filter else None
+        )
+    )
+    response = await rag.retrieval_query_async(
+        rag_resources=[rag.RagResource(rag_corpus=corpus_name)],
+        text=query,
+        rag_retrieval_config=retrieval_config
+    )
+    return response.contexts.contexts
+```
+
+---
+
+File 4: protected/eval_judge.py
+
+```python
+import json, hashlib
+from services.gemini import get_flash
+
+FAITHFULNESS_PROMPT = """You are a legal RAG system evaluator. Be rigorous — legal errors cause real harm.
+
+QUESTION: {question}
+ANSWER: {answer}
+RETRIEVED CONTEXT (numbered):
+{context_block}
+CITATIONS CLAIMED: {citations}
+
+Evaluate:
+1. FAITHFULNESS: Is every factual claim in the answer directly supported by the context? 
+   Score 0.0–1.0. Deduct 0.2 for each unsupported claim.
+2. CITATION_ACCURACY: Do all cited [N] references exist in the context and support the claim?
+   true/false per citation.
+3. ADVERSARIAL_CHALLENGE: Generate ONE specific counter-argument that challenges the answer.
+   Be concrete — cite the part of the context that creates ambiguity or contradiction.
+4. VERDICT: PASS (faithfulness >= 0.85, all citations accurate) | REVIEW | FAIL
+
+Return ONLY valid JSON:
+{{
+  "faithfulness_score": float,
+  "citations_accurate": {{"{citation_id}": true/false}},
+  "adversarial_challenge": "string — specific challenge with context reference",
+  "verdict": "PASS|REVIEW|FAIL",
+  "reasoning": "brief"
+}}"""
+
+async def judge(question: str, answer: str, chunks: list, citations: list) -> dict:
+    context_block = "\n".join(
+        f"[{i+1}] (Source: {c.source_display_name}, score: {c.score:.3f})\n{c.text[:600]}"
+        for i, c in enumerate(chunks)
+    )
+    provenance_hash = hashlib.sha256((question + answer + context_block).encode()).hexdigest()[:16]
+
+    prompt = FAITHFULNESS_PROMPT.format(
+        question=question,
+        answer=answer,
+        context_block=context_block,
+        citations=citations
+    )
+
+    response = await get_flash().generate_content_async(
+        prompt,
+        generation_config={"temperature": 0.1, "response_mime_type": "application/json"}
+    )
+
+    try:
+        result = json.loads(response.text)
+    except json.JSONDecodeError:
+        result = {
+            "faithfulness_score": 0.5,
+            "citations_accurate": {},
+            "adversarial_challenge": "Eval parsing failed — manual review required",
+            "verdict": "REVIEW",
+            "reasoning": "JSON parse error"
+        }
+
+    result["provenance_hash"] = provenance_hash
+    return result
+```
+
+---
+
+File 5: protected/query.py
+
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from services.rag import retrieve
+from services.rerank import rerank
+from services.gemini import get_pro, get_flash
+from services.eval_judge import judge
+from services.storage import store_interaction
+from middleware.auth import require_role
+from models.schemas import QueryRequest, QueryResponse
+import os, re
+
+router = APIRouter()
+
+SYNTHESIS_PROMPT = """You are a legal research assistant. Use ONLY the provided context.
+Cite sources as [1], [2], etc. If context is insufficient, say exactly: "Insufficient context to answer."
+Never speculate beyond the provided documents.
+
+Question: {question}
+
+Context:
+{context_block}
+
+Provide a structured answer with:
+1. Direct answer
+2. Supporting evidence with citations
+3. Any important caveats or limitations"""
+
+@router.post("/query", response_model=QueryResponse)
+async def query_endpoint(
+    req: QueryRequest,
+    user=Depends(require_role(["admin", "analyst", "viewer"]))
+):
+    corpus = (
+        os.environ["CORPUS_STATUTES"] if req.corpus_type == "statutes"
+        else os.environ["CORPUS_CONTRACTS"]
+    )
+
+    raw_chunks = await retrieve(
+        query=req.question,
+        corpus_name=corpus,
+        top_k=20,
+        doc_type_filter=req.doc_type_filter
+    )
+
+    if not raw_chunks:
+        raise HTTPException(404, "No relevant documents found in corpus")
+
+    ranked_chunks = await rerank(req.question, raw_chunks, top_n=5)
+
+    context_block = "\n\n".join(
+        f"[{i+1}] {c.source_display_name}\n{c.text}"
+        for i, c in enumerate(ranked_chunks)
+    )
+
+    synthesis = await get_pro().generate_content_async(
+        SYNTHESIS_PROMPT.format(question=req.question, context_block=context_block),
+        generation_config={"temperature": 0.1}
+    )
+    answer = synthesis.text
+
+    citations = list(set(re.findall(r'\[(\d+)\]', answer)))
+
+    eval_result = await judge(
+        question=req.question,
+        answer=answer,
+        chunks=ranked_chunks,
+        citations=citations
+    )
+
+    await store_interaction(
+        session_id=req.session_id,
+        user_id=user["uid"],
+        question=req.question,
+        answer=answer,
+        sources=[{
+            "doc": c.source_display_name,
+            "score": c.score,
+            "text_preview": c.text[:200]
+        } for c in ranked_chunks],
+        eval_result=eval_result
+    )
+
+    return QueryResponse(
+        answer=answer,
+        sources=[{
+            "index": i+1,
+            "doc_title": c.source_display_name,
+            "retrieval_score": round(c.score, 4),
+            "text_preview": c.text[:300],
+            "chunk_hash": hash(c.text)
+        } for i, c in enumerate(ranked_chunks)],
+        eval=eval_result,
+        session_id=req.session_id
+    )
+```
+
+---
+
+File 6: run_build.sh
+
+```bash
+#!/bin/bash
+set -e  # stop on any error
+
+cd ~/docrag-legal
+
+echo "=== Phase 0: Virtual environment & dependencies ==="
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install fastapi uvicorn[standard] firebase-admin google-cloud-aiplatform google-cloud-storage vertexai pydantic slowapi python-dotenv httpx modal google-cloud-discoveryengine python-multipart
+
+echo "=== Phase 1-2: GCP + Firebase (Gemini) ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MASTER_PLAN.md. Execute Phase 1 through Phase 2 exactly as in MASTER_PLAN. Stop if any command fails."
+
+echo "=== Phase 3-4: Modal + storage client ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MASTER_PLAN.md. Execute Phase 3 and Phase 4 exactly. Write backend/services/storage.py as specified in Phase 4 (Modal client)."
+
+echo "=== Phase 5-6: Corpus, ingestion, secrets ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MASTER_PLAN.md. Execute Phase 5 and Phase 6 exactly. Use MASTER_PLAN for script contents."
+
+echo "=== Phase 7: Backend boilerplate (except protected files) ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MASTER_PLAN.md. Write all backend files except the four protected ones: main.py, requirements.txt, Dockerfile, .env, middleware/auth.py, utils/retry.py, models/schemas.py, routers/ingest.py, routers/risk.py, routers/redline.py, routers/eval.py, services/rerank.py. Follow MASTER_PLAN code but replace Oracle imports with 'from services.storage import ...'. Then run: cd backend && python -c 'from main import app; print(\"Import OK\")'"
+
+echo "=== Copying protected files into place ==="
+cp protected/*.py backend/services/ 2>/dev/null || true
+cp protected/query.py backend/routers/ 2>/dev/null || true
+
+echo "=== Phase 8: Cloud Run deploy ==="
+gemini --yolo "Read AGENT_CONTEXT.md. Deploy backend to Cloud Run using the command from Phase 8 of MASTER_PLAN. Save API_URL to ~/.bashrc."
+
+echo "=== Phase 9: Frontend ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MASTER_PLAN.md. Build the full Next.js frontend as described in Phase 9 of MASTER_PLAN. Use the component specifications from MASTER_PLAN. Run npm run build."
+
+echo "=== Phase 10-11: Scheduler + smoke tests ==="
+gemini --yolo "Read AGENT_CONTEXT.md. Create Cloud Scheduler job for /eval/batch. Run all smoke tests from Phase 11 of MASTER_PLAN (obtain Firebase token for admin user). Report results."
+
+echo "=== Build completed ==="
+```
+
+---
+
+Files to Upload in ZIP
+
+Create a ZIP file named build-packet.zip containing exactly this structure:
+
+```
+build-packet/
+├── AGENT_CONTEXT.md
+├── protected/
+│   ├── gemini.py
+│   ├── rag.py
+│   ├── eval_judge.py
+│   └── query.py
+└── run_build.sh
+```
+
+Do not include MASTER_PLAN.md – you already have it on your machine (the first file you shared). You will upload that separately to Cloud Shell or copy it manually.
+
+---
+
+Step-by-Step Upload & Run (from your phone)
+
+1. On your computer/phone – create the ZIP with the 6 files above.
+2. Open Cloud Shell (any device).
+3. Upload the ZIP using the Cloud Shell menu (three dots → Upload).
+4. Also upload MASTER_PLAN.md (the original long file) – you can drag & drop or use the upload button.
+5. Run these commands in Cloud Shell:
+
+```bash
+mkdir -p ~/docrag-legal
+cd ~/docrag-legal
+unzip ~/build-packet.zip   # assuming you uploaded to home directory
+cp ~/MASTER_PLAN.md .      # copy the master plan into the folder
+chmod +x run_build.sh
+tmux new -s build
+./run_build.sh
+```
+
+6. Detach with Ctrl+B D. Close Cloud Shell. The build runs in background.
+7. Re-attach later with tmux attach -t build to see progress and final URL.
+
+---
+
+Should you write the 4 sensitive files now or later?
+
+Now – because they are part of the ZIP. You must produce their final content (provided above) and include them. The script copies them into place; Gemini never touches them. This ensures your portfolio's differentiation is locked in before automation runs.
+
+After the build finishes, the entire app is live on Cloud Run + Vercel. You can then delete the Cloud Shell VM or keep it – no ongoing costs beyond usage.                   **********Triple Check Results – Issues Found
+
+1. Contradiction between MASTER_PLAN.md (Oracle) and Modal requirement
+
+Your run_build.sh tells Gemini: "Execute Phase 3 and Phase 4 exactly as in MASTER_PLAN.md" – but MASTER_PLAN.md (the first file) has no Modal phases. It uses Oracle.
+The step‑by‑step file (second file) has the correct Modal instructions.
+Result: Gemini will try to set up Oracle, not Modal. Broken.
+
+2. Missing Modal authentication step
+
+The script installs modal via pip but never runs modal token set. Cloud Shell will fail on any modal.Function.lookup or modal.Dict.from_name because the CLI isn’t logged in.
+Result: Modal calls will raise AuthenticationError.
+
+3. Firebase custom claims script path
+
+In Phase 2 of MASTER_PLAN.md, the custom claims script uses a hardcoded path /path/to/firebase-service-account.json. The script never copies that JSON into the container or sets it as a secret before use.
+Result: Custom claims setting will fail.
+
+4. services/rerank.py is not fully specified
+
+run_build.sh asks Gemini to write services/rerank.py but MASTER_PLAN.md only has a stub (the Ranking API call). The step‑by‑step file has the full implementation – but Gemini won’t know which to use.
+Result: Incomplete or incorrect reranking code.
+
+---
+
+What You Should Do Instead (Clean Fix)
+
+Abandon Cloud Shell for this build. You already have a VM with Modal, GCP, and most libraries set up. The phone disconnection problem is real, but you can work in tmux on your VM just as easily – and the VM already has your credentials.
+
+Simplified workflow (on your existing VM)
+
+1. SSH into your VM (using Termius – stays connected).
+2. Create the directory and upload the same ZIP (the one with AGENT_CONTEXT.md, protected files, run_build.sh).
+3. Also upload the step‑by‑step file (the second file) as MODAL_SETUP.md.
+4. Modify run_build.sh to reference MODAL_SETUP.md instead of MASTER_PLAN.md, and add a Modal login step.
+
+Here is the corrected run_build.sh – use this instead of the previous version:
+
+```bash
+#!/bin/bash
+set -e
+
+cd ~/docrag-legal
+
+echo "=== Phase 0: Ensure Modal is logged in ==="
+modal token set --token-id "$MODAL_TOKEN_ID" --token-secret "$MODAL_TOKEN_SECRET" || echo "Please run 'modal token set' manually if this fails"
+
+echo "=== Virtual environment ==="
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install fastapi uvicorn firebase-admin google-cloud-aiplatform google-cloud-storage vertexai pydantic slowapi python-dotenv httpx modal google-cloud-discoveryengine python-multipart
+
+echo "=== Phase 1-6: Follow MODAL_SETUP.md (step‑by‑step) ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MODAL_SETUP.md. Execute Phase 1 through Phase 6 exactly as in MODAL_SETUP.md. Stop if any command fails."
+
+echo "=== Phase 7: Backend boilerplate ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MODAL_SETUP.md. Write backend files: main.py, requirements.txt, Dockerfile, .env, middleware/auth.py, utils/retry.py, models/schemas.py, routers/ingest.py, routers/risk.py, routers/redline.py, routers/eval.py, services/rerank.py, services/storage.py. Use MODAL_SETUP.md for exact code (Modal, not Oracle)."
+
+echo "=== Copy protected files ==="
+cp protected/*.py backend/services/
+cp protected/query.py backend/routers/
+
+echo "=== Phase 8: Cloud Run deploy ==="
+gemini --yolo "Read AGENT_CONTEXT.md. Deploy backend using the Cloud Run command from Phase 8 of MODAL_SETUP.md."
+
+echo "=== Phase 9: Frontend ==="
+gemini --yolo "Read AGENT_CONTEXT.md and MODAL_SETUP.md. Build Next.js frontend as per Phase 9 of MODAL_SETUP.md."
+
+echo "=== Phase 10-11: Scheduler + smoke tests ==="
+gemini --yolo "Read AGENT_CONTEXT.md. Create Cloud Scheduler job for /eval/batch. Run smoke tests from Phase 11 of MODAL_SETUP.md."
+
+echo "Done."
+```
+
+What you need to upload (revised ZIP contents)
+
+· AGENT_CONTEXT.md (as provided earlier)
+· MODAL_SETUP.md – this is the second file you shared (the step‑by‑step with Modal)
+· protected/gemini.py
+· protected/rag.py
+· protected/eval_judge.py
+· protected/query.py
+· run_build.sh (the corrected version above)
+
+Do not include the original MASTER_PLAN.md – it will only confuse Gemini.
+
+On your VM, before running the script
+
+Ensure your environment variables are set:
+
+```bash
+export MODAL_TOKEN_ID=$(modal token info | grep "Token ID" | awk '{print $3}')
+export MODAL_TOKEN_SECRET=$(grep "token_secret" ~/.modal.toml | cut -d '"' -f2)
+```
+
+Or just run modal token set interactively once – the script will reuse the saved config.
+
+---
+
+Answering your specific questions
+
+Does our current setup account for the switch to Modal from Oracle?
+
+No, because your run_build.sh pointed to the wrong plan. The corrected version above points to MODAL_SETUP.md (the step‑by‑step file) which is fully Modal‑based.
+
+Will Cloud Shell struggle with all the auth steps?
+
+Yes. Cloud Shell would need you to re‑authenticate gcloud (it already does), modal (you'd have to paste token), and Firebase (you'd need to upload the service account JSON). Doing that on a phone is painful. Stick with your VM – you already have Modal and GCP set up.
+
+Should I write the 4 sensitive files now or later?
+
+Now – they are provided in my previous response. Copy them exactly into the protected/ folder inside your ZIP. They are ready to use.
+
+---
+
+Final recommendation
+
+1. Use your existing VM (not Cloud Shell).
+2. Create the ZIP with the 6 files listed above (including MODAL_SETUP.md).
+3. Upload to VM, unzip, chmod +x run_build.sh.
+4. Run tmux new -s build then ./run_build.sh.
+5. Detach with Ctrl+B D – the build runs even if you close Termius (the process keeps going on the VM).
+6. Re‑attach later with tmux attach -t build.
+
+The VM will not need to stay on after deployment – but during the build, it does. Since you already have it, no extra cost. After the build, you can stop the VM. The app runs on Cloud Run + Vercel.
