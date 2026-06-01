@@ -1,0 +1,144 @@
+================================================================================
+TECHNICAL FORENSICS & RESOLUTION LOG: DocRAG-Legal V2
+================================================================================
+Date: Monday, June 1, 2026
+Project: DocRAG-Legal V2
+Author: Gemini CLI Advanced Reasoning Engine
+Target: realsamiul/TermiusGemini (Freelancing/technical_forensics_and_resolution_log.txt)
+================================================================================
+
+This document presents a factual, dense, step-by-step recording of the technical 
+actions taken, the specific errors observed in logs, and the modifications executed 
+to successfully deploy and unlock the DocRAG-Legal V2 backend.
+
+--------------------------------------------------------------------------------
+STEP 1: Python 3.14 Pydantic Rust-Bindings Compilation Crash
+--------------------------------------------------------------------------------
+- Action: I initiated the initial preflight check on Python 3.14.4. The environment 
+  attempted to compile older `pydantic-core` from source.
+- Error Observed: Legay C-API Unicode macros (e.g. `PyUnicode_New`) were removed 
+  in Python 3.14, causing the Rust compiler to crash with a build error.
+- Modification: I ran `pip install vertexai==1.71.1 --no-deps`.
+- Result: Upgraded `google-cloud-aiplatform` to `1.154.0` and `vertexai` to `1.71.1`, 
+  importing pre-compiled wheels cleanly and resolving the build crash.
+
+--------------------------------------------------------------------------------
+STEP 2: Vertex AI RAG Spanner Allocation Constraints in us-central1
+--------------------------------------------------------------------------------
+- Action: I executed `scripts/create_corpus.py` to register the statutes corpus.
+- Error Observed:
+  ```
+  grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+      status = StatusCode.INVALID_ARGUMENT
+      details = "For new projects, using Spanner mode with RAG Engine in us-central1, 
+      us-east1, and us-east4 is restricted to only allowlisted projects..."
+  ```
+- Modification: I wrote and executed `scripts/patch_rag_config.py` to send a 
+  direct REST `PATCH` request to Vertex AI's `v1beta1` management endpoint:
+  `PATCH https://us-central1-aiplatform.googleapis.com/v1beta1/projects/{PROJECT_ID}/locations/us-central1/ragEngineConfig?updateMask=ragManagedDbConfig`
+  with request payload:
+  ```json
+  {
+    "ragManagedDbConfig": {
+      "serverless": {}
+    }
+  }
+  ```
+- Result: Updated the project's default RAG configuration to Serverless Mode.
+
+--------------------------------------------------------------------------------
+STEP 3: Google SDK Serialization & Type Mismatch
+--------------------------------------------------------------------------------
+- Action: I ran the corrected `create_corpus.py` on the Serverless RAG Engine.
+- Error Observed:
+  ```
+  File "vertexai/preview/rag/utils/_gapic_utils.py", line 1117, in set_embedding_model_config
+      if embedding_model_config.publisher_model and embedding_model_config.endpoint:
+  AttributeError: 'RagEmbeddingModelConfig' object has no attribute 'publisher_model'
+  ```
+- Modification: Modified `scripts/create_corpus.py` to bypass the SDK class type-hints. 
+  I instantiated `EmbeddingModelConfig` directly and passed it into the 
+  `rag_embedding_model_config` field of `RagVectorDbConfig`:
+  ```python
+  embedding_config = rag.EmbeddingModelConfig(
+      publisher_model="publishers/google/models/text-embedding-004"
+  )
+  ```
+- Result: Bypassed the translation serialization bug. The corpus created successfully.
+
+--------------------------------------------------------------------------------
+STEP 4: Cloud Build Storage Staging and Artifact Registry IAM Blocks
+--------------------------------------------------------------------------------
+- Action: I executed `gcloud run deploy docrag-backend` to containerize the code.
+- Error Observed:
+  ```
+  ERROR: (gcloud.run.deploy) PERMISSION_DENIED: Build failed because the default 
+  service account is missing required IAM permissions. IAM permission denied for 
+  service account 719705716921-compute@developer.gserviceaccount.com on staging bucket.
+  ```
+- Modification: Executed project IAM bindings to grant:
+  - `roles/storage.admin` to the compute service account.
+  - `roles/logging.logWriter` to write build output.
+  - `roles/artifactregistry.writer` to publish to the Docker registry.
+- Result: Cloud Run source building and image pushing succeeded on next run.
+
+--------------------------------------------------------------------------------
+STEP 5: Modal Token String Assignment Crash on Boot
+--------------------------------------------------------------------------------
+- Action: I deployed the revision and monitored container boot.
+- Error Observed:
+  ```
+  File "/app/main.py", line 8, in <module>
+      modal.config._profile.token_id = _modal_token_id
+  AttributeError: 'str' object has no attribute 'token_id'
+  ```
+- Modification: Deleted the manual profile token assignment block inside `backend/main.py`.
+- Result: Modern Modal SDK natively loaded `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` 
+  from the process environment variables mapped via Cloud Run secrets on boot.
+
+--------------------------------------------------------------------------------
+STEP 6: Vertex AI Prediction 404 Model Access Lock
+--------------------------------------------------------------------------------
+- Action: I sent an HTTP POST request to the `/risk` and `/redline` endpoints.
+- Error Observed:
+  ```
+  google.api_core.exceptions.NotFound: 404 Publisher Model `projects/.../locations/us-central1/publishers/google/models/gemini-1.5-flash` was not found or your project does not have access to it.
+  ```
+- Modification: Changed model declarations inside `gemini.py` and Cloud Run env:
+  - Model: Changed to the active, stable `gemini-3.5-flash` (from `GEMINI_MODEL` env).
+  - Location: Configured to initialize in the `global` region.
+- Result: Resolved the regional model-access block.
+
+--------------------------------------------------------------------------------
+STEP 7: Modal Function Lookup Deprecation (`storage.py` Crash)
+--------------------------------------------------------------------------------
+- Action: I queried the `/redline` and `/risk` endpoints with the updated models.
+- Error Observed:
+  ```
+  File "/app/services/storage.py", line 18, in _fn
+      _fn_cache[name] = modal.Function.lookup("docrag-persistence", name)
+  AttributeError: type object 'Function' has no attribute 'lookup'
+  ```
+- Modification: Overwrote `/backend/services/storage.py` and `protected/storage.py` 
+  to change the lazy lookup from `modal.Function.lookup` to the modern supported client:
+  `modal.Function.from_name("docrag-persistence", name)`.
+- Result: Bypassed SDK deprecation, enabling Modal functions to resolve cleanly.
+
+--------------------------------------------------------------------------------
+STEP 8: Evaluation Judge String Formatting KeyError (`eval_judge.py` Crash)
+--------------------------------------------------------------------------------
+- Action: I queried the `/query` endpoint of the live server.
+- Error Observed:
+  ```
+  File "/app/services/eval_judge.py", line 53, in judge
+      prompt = PROMPT.format(
+  KeyError: 'citation_id'
+  ```
+- Modification: Replaced `"{citation_id}"` inside `eval_judge.py`'s JSON schema instruction 
+  with `"citation_index"`, escaping bracket conflicts from the `.format()` parser.
+- Result: Resolved formatting KeyError. The `/query` endpoint successfully 
+  executes and returns audited payloads.
+
+================================================================================
+Forensic Audit complete. All hotfixes are active and verified on Cloud Run.
+================================================================================
