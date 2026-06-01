@@ -1,0 +1,84 @@
+================================================================================
+ERUDITE V2: FINAL ADMISSIONS COUNSELOR PRODUCTION HANDOFF SPECIFICATION
+================================================================================
+Date: Monday, June 1, 2026
+Project: Erudite V2 (Bangladesh Applicant Intelligence System)
+Author: Gemini CLI Advanced Reasoning Engine
+Target: realsamiul/TermiusGemini (Freelancing/erudite_v2_handoff.txt)
+================================================================================
+
+This specification serves as the final, complete production handoff file for 
+the Erudite V2 (Bangladesh Applicant Intelligence) system, containing live 
+coordinates, structured counselor JSON schemas, and usage guidelines.
+
+--------------------------------------------------------------------------------
+1. ARCHITECTURE COORDINATES
+--------------------------------------------------------------------------------
+- Deployed Endpoint: `https://erudite-backend-719705716921.us-central1.run.app`
+- Health Check: `https://erudite-backend-719705716921.us-central1.run.app/health`
+- Active GCP Project: `project-a1f62154-a7ad-4b37-93b`
+- Active SA: `docrag-sa@project-a1f62154-a7ad-4b37-93b.iam.gserviceaccount.com`
+- Active region: `us-central1`
+
+--------------------------------------------------------------------------------
+2. SYSTEM DESIGN & CREDIT SAFETY
+--------------------------------------------------------------------------------
+- **The Concept**: Designed specifically to use your $1,000 GenAI App Builder 
+  credits keylessly via `discoveryengine.googleapis.com` under standard Search 
+  data stores. This isolates standard credit burn entirely.
+- **The Brain**: Embodies the compassionate, wise, and highly realistic "older sibling" 
+  or specialized counselor. It completely bypasses boring AI filler.
+- **The visual UI output**: The response is structured in a clean, visual, and 
+  scannable JSON schema returning greeting headers, specific markdown advice, 
+  custom quick-stat cards, and chart specifications, ready to be rendered in 
+  Next.js as animatable pie/bar charts and badges.
+
+--------------------------------------------------------------------------------
+3. INTERACTIVE ENDPOINT USAGE
+--------------------------------------------------------------------------------
+
+A. Query Counselor API (`POST /advisor/query`)
+   - Connects standard Discovery Engine search, Gemini 3.5 Flash counselor synthesis, 
+     and the Modal cryptographic ledger.
+   - Example request payload:
+     ```json
+     {
+       "question": "What are the rules and guidelines for serious adverse events (SAEs)?",
+       "session_id": "test-counseling-session-v2",
+       "category": "clinical_safety"
+     }
+     ```
+   - Example structured counselor response payload:
+     ```json
+     {
+       "greeting": "Let's look at this together. The timeline is strict here.",
+       "answer": "All serious adverse events (SAEs) must be reported immediately...",
+       "quick_stats": [
+         {"label": "Reporting Window", "value": "24 Hours", "badge_type": "danger"},
+         {"label": "Standard AE Logging", "value": "3 Days", "badge_type": "warning"}
+       ],
+       "charts": [
+         {
+           "type": "pie",
+           "title": "Adverse Event Distribution",
+           "data": {"Serious (SAE)": 15.0, "Standard (AE)": 85.0}
+         }
+       ],
+       "audit_feedback": {
+         "loopholes": "Ensure all non-fatal SAEs are not exempt from the 24-hour reporting window.",
+         "curriculum_warnings": "ICH-GCP guidelines form the global standard across all local jurisdictions.",
+         "pipeline_alerts": "No pipeline bias observed."
+       },
+       "provenance_hash": "e3bb509dd03e8a8498799e80d8aea4a7678b49bfd958d5c9195eb8cc89e2f277"
+     }
+     ```
+
+--------------------------------------------------------------------------------
+4. WORKSPACE DIRECTORY
+--------------------------------------------------------------------------------
+The complete clean codebase for Erudite V2 is compiled, self-contained, and active 
+inside `/home/realsamkarim/docrag-v2/erudite-v2/` on the VM.
+
+================================================================================
+Erudite V2 is fully hardened, verified, and ready to serve!
+================================================================================
