@@ -1,0 +1,135 @@
+================================================================================
+TECHNICAL AUDIT & PROGRESS REPORT: DocRAG-Legal V2 Setup & SDK Setbacks
+================================================================================
+Date: Monday, June 1, 2026
+Project: DocRAG-Legal V2
+Author: Gemini CLI Advanced Reasoning Engine
+Target Repository: realsamiul/TermiusGemini (Freelancing/progress_and_risk_audit.txt)
+================================================================================
+
+This report presents a granular, high-fidelity audit of the progress made so far
+on the DocRAG-Legal V2 codebase, detailing major platform anomalies, unexpected 
+GCP/SDK limitations, resolved issues, and a risk assessment of the remaining phases.
+
+--------------------------------------------------------------------------------
+1. CURRENT PROGRESS STATE
+--------------------------------------------------------------------------------
+- Directory Structure: Created and mapped under `~/docrag-v2/` containing clean
+  backend modules, Pydantic schemas, retry utilities, Modal integration, 
+  and routers (with protected services securely in place).
+- Modal State: The persistence layer `docrag-persistence` (`store.py`) has been 
+  successfully deployed and registered in the `mortuzamanisha` Modal workspace.
+- GCP Platform Init: The preflight script successfully enabled Vertex AI, Cloud 
+  Run, GCS, Secret Manager, Cloud Scheduler, and Discovery Engine APIs.
+- Service Account Config: The service account `docrag-sa` was created and successfully
+  granted all required IAM permissions:
+    - roles/aiplatform.user (Vertex RAG)
+    - roles/storage.objectAdmin (GCS bucket read/write)
+    - roles/secretmanager.secretAccessor (Runtime Secret retrieval)
+    - roles/discoveryengine.viewer (Discovery Engine/Ranking API)
+    - roles/firebaseauth.admin (Auth validation)
+    - roles/datastore.user (Firestore session store)
+
+--------------------------------------------------------------------------------
+2. TECHNICAL SETBACKS & CRITICAL SDK MISALIGNMENTS (UNPREDICTED IN PLANS)
+--------------------------------------------------------------------------------
+
+During the execution of scripts/create_corpus.py (Phase 2), we encountered two major 
+unpredicted, high-impact bottlenecks within the GCP Vertex AI platform and the 
+official Python SDK:
+
+A. The SDK Type-Hint and Serialization Bug in Google's Vertex AI Library
+   - The Issue: In `create_corpus.py`, we construct the embedding configuration 
+     using the official `RagEmbeddingModelConfig` class nested in `RagVectorDbConfig`:
+     ```python
+     embedding_config = rag.RagEmbeddingModelConfig(
+         vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+             publisher_model="publishers/google/models/text-embedding-004"
+         )
+     )
+     ```
+     When passed to `rag.create_corpus()`, the SDK's internal gapic utility 
+     `set_embedding_model_config` in `_gapic_utils.py` does:
+     ```python
+     def set_embedding_model_config(embedding_model_config: EmbeddingModelConfig, ...):
+         if embedding_model_config.publisher_model and embedding_model_config.endpoint:
+             ...
+     ```
+     This results in `AttributeError: 'RagEmbeddingModelConfig' object has no attribute 'publisher_model'`.
+     - The Root Cause: Google's SDK has a structural mismatch. The initializer of 
+       `RagVectorDbConfig` type-hints `rag_embedding_model_config` as requiring a 
+       `RagEmbeddingModelConfig` object, but the translation layer inside `_gapic_utils.py` 
+       actually attempts to read `publisher_model` directly from it, expecting an 
+       `EmbeddingModelConfig` object.
+     - The Dynamic Bypass: We can bypass this type-hint bug at runtime (leveraging Python's 
+       dynamic typing) by passing `rag.EmbeddingModelConfig(publisher_model="...")` 
+       directly into `RagVectorDbConfig`'s `rag_embedding_model_config` field.
+
+B. GCP Vertex AI Spanner Allocation Restraints in us-central1 (Capacity Lock)
+   - The Issue: When trying to create the corpus, the Vertex AI RAG backend returns:
+     ```
+     grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+         status = StatusCode.INVALID_ARGUMENT
+         details = "For new projects, using Spanner mode with RAG Engine in us-central1, 
+         us-east1, and us-east4 is restricted to only allowlisted projects due to capacity 
+         limitation. Please switch to Serverless mode in us-central1..."
+     ```
+     - The Root Cause: Creating a managed Vertex RAG corpus with `RagManagedVertexVectorSearch()`
+       triggers a provisioned Cloud Spanner instance behind the scenes. For non-allowlisted 
+       new projects, Google restricts Spanner-backed RAG Engine creation in major regions 
+       due to global capacity bounds.
+     - The Strategy Pivot: We must force the project's RAG Engine to use Serverless mode.
+       By default, Google RAG Engine project config is set to Spanner mode. We need to 
+       make a management plane API call (`update_rag_engine_config`) to switch the project's 
+       default configuration to Serverless mode (`RagManagedDb` serverless tier).
+     - SDK Obstacle in v1: The Python SDK's `aiplatform_v1.RagEngineConfig` has internal 
+       structures for `scaled` and `basic` (Spanner), but lacks the `ServerlessConfig` 
+       subclass directly exposed in the stable v1 endpoint, meaning we must execute 
+       this switch using the `v1beta1` rest/grpc endpoint or the `gcloud alpha` CLI interface.
+
+--------------------------------------------------------------------------------
+3. REMAINING WORK SURVEY & RISK PREDICTIONS
+--------------------------------------------------------------------------------
+
+We have surveyed the subsequent phases of the master plan and identified several 
+hidden traps that must be mitigated:
+
+A. Reranking API Config Existential Risk (Phase 2/3)
+   - In `protected/rerank.py`, the semantic ranker relies on:
+     `projects/{PROJECT_ID}/locations/global/rankingConfigs/default_ranking_config`
+   - Predicted Issue: If the `default_ranking_config` does not exist or has not 
+     been initialized under the newly created Discovery Engine workspace, the 
+     FastAPI backend will throw a 404/INVALID_ARGUMENT on `/query`.
+   - Mitigation: We must verify or initialize the default ranking config or fall back 
+     to a secondary ranker layout if capacity/features are blocked.
+
+B. Firebase Admin SDK runtime ADC scopes in Cloud Run (Phase 5)
+   - The keyless auth setup utilizes:
+     ```python
+     firebase_admin.initialize_app()
+     ```
+   - Predicted Issue: When deployed to Cloud Run under `docrag-sa`, firebaseauth 
+     requires specific Google OAuth scopes. If the service account lacks trust or 
+     is blocked by an organizational IAM policy, token verification will fail.
+   - Mitigation: Ensure `roles/firebaseauth.admin` is fully bound, and fallback values 
+     are securely handled in case of strict VPC service perimeters.
+
+C. Next.js 14 Build Dependency Conflicts (Phase 6)
+   - Next.js 14 combined with dynamic library upgrades (like React 18/19 and 
+     `react-markdown`/`chart.js` packaging changes) frequently causes build-time 
+     TypeScript compilation errors during `npm run build`.
+   - Mitigation: Ensure `tsconfig.json` paths and packages are strictly pinned to 
+     compatible React 18 layouts during Phase D.
+
+--------------------------------------------------------------------------------
+4. RECCOMMENDATIONS FOR THE ARCHITECT
+--------------------------------------------------------------------------------
+1. Execute a `v1beta1` API switch to force the GCP project's RAG configuration 
+   into Serverless mode.
+2. Update the seed PDF ingestion process to use `RagManagedDb` once Serverless 
+   mode is active to guarantee Spanner budget compliance and zero-cost operation.
+3. Validate Discovery Engine global config readiness before building the Next.js frontend.
+
+================================================================================
+Report Compiled Safely. Zero destructive actions were taken.
+================================================================================
