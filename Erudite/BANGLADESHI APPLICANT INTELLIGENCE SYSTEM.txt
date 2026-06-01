@@ -1,0 +1,754 @@
+
+---
+
+# THE BANGLADESHI APPLICANT INTELLIGENCE SYSTEM
+## Version 2.0 — Reasoning-First Architecture
+### *The Logic Engine + The Operational Machine, Unified*
+
+---
+
+> **What this document is:** Your existing guide was an excellent *data collection machine* — it knew what to find and where to look. What it lacked was a *reasoning engine* — the logic that tells you what the data **means**, how to **weight** it, and how to **compare** schools against each other and against a specific student. This document fuses both. Every operational step now has a reasoning layer above it.
+
+---
+
+## PART 1: THE REASONING ENGINE
+### *The logic patterns that turn raw data into real advice*
+
+---
+
+### R1. THE FUNDAMENTAL CLAIM DECOMPOSITION RULE
+
+**The core principle:** Every financial aid claim a university makes must be **decomposed into its hidden variables** before being accepted as meaningful. A claim is not a fact — it is a compressed statement that contains multiple unstated assumptions.
+
+Here is the decomposition map:
+
+| Stated Claim | Hidden Variables to Interrogate |
+|---|---|
+| "We are need-blind" | For internationals specifically, or domestic only? Confirmed on the international financial aid page, not just the main admissions page? |
+| "We meet 100% of demonstrated need" | Does "demonstrated need" use the school's own EFC formula (which may be inflated for Bangladeshi families)? Is "100%" before or after loans? Does it apply to all internationals or only those "admitted with funding"? |
+| "Our average aid package is $X" | Is this average only for recipients, or across all international students? Does it include loans and work-study? Is the denominator all internationals enrolled or just those who applied for aid? |
+| "79% of need is met" | What is the composition of the remaining 21%? Who is in the denominator — all international students or just aid applicants? Is the "need" calculated generously or conservatively? |
+| "We support students from all backgrounds" | Does this generate any computable commitment, or is it marketing language? |
+
+Your family's "demonstrated financial need" may fluctuate based on how each college counts a family's income and assets. This is the key insight. The EFC is not an objective number — it is a school-specific calculation, and two schools can produce wildly different EFCs for the exact same Bangladeshi family.
+
+**The rule in practice:** Never accept a claim at face value. Always ask: *who is in the denominator, how is "need" defined, and does this apply to a zero-income Bangladeshi family specifically?*
+
+---
+
+### R2. THE FIVE-TIER POLICY TOPOLOGY (Ground Truth Classification)
+
+Before any other analysis, every school must be assigned a policy type. This is not the same as what the school *claims* — it is what their policy *actually means* for a high-need Bangladeshi applicant.
+
+Most US universities are need-blind only for domestic applicants — US citizens and permanent residents. For international students, financial aid often comes from smaller funding pools, so the majority of universities are need-aware for overseas applicants.
+
+A need-blind school isn't necessarily committed to meeting 100% of students' demonstrated financial need. Consequently, a student may be accepted to a need-blind college, but have to turned down the admissions offer due to the inability to pay.
+
+| Type | Definition | BD Student Implication |
+|---|---|---|
+| **Type A** | Need-blind for intl + meets 100% need + no loans | If admitted, you attend. Full stop. |
+| **Type B** | Need-blind for intl + meets 100% need + loans included | If admitted, you attend with debt component |
+| **Type C** | Need-aware + meets 100% need for admitted intl | Getting admitted while needing $70k is harder; but if you get in, you're funded |
+| **Type D** | Need-aware + partial need ("gapping") | The danger zone — you may be admitted but unable to attend |
+| **Type E** | Domestic need-blind label, international need-aware in practice | The most common trap — marketing says blind, policy page says otherwise |
+
+**Current confirmed Type A schools (as of 2025):**
+
+In 2025, eight U.S. institutions continue to maintain need-blind policies for international students: Amherst College, Bowdoin College, Brown University, Dartmouth College, Harvard University, MIT, Princeton University, and Yale University.
+
+Washington and Lee University is a ninth: Washington and Lee University provides both need-based and merit-based assistance to international students in each entering class. W&L is need-blind in its admissions decisions, and meets 100% of demonstrated financial need without loans.
+
+**Critical policy evolution to track:** Brown University became need-blind for international applicants beginning with the Class of 2029 (students entering in 2025). It now joins the small group of universities that guarantee full need-based aid for all admitted students, regardless of country of origin. This is the most important 2025 policy change — Brown moved from Type C/D to Type A.
+
+**The Georgetown trap** — a named pattern every researcher must know: Georgetown University is need-blind for all students but doesn't guarantee meeting full need for international students. This is Type E: the admission is blind, but the funding is not guaranteed. A Bangladeshi student can be admitted and still not be able to attend.
+
+**The Columbia nuance:** Columbia meets 100% of the demonstrated financial need for all domestic students and all international students admitted with funding. The phrase "admitted with funding" is doing enormous work here — it means international students must declare aid need at application time, and those admitted *without* funding declarations are permanently ineligible for aid.
+
+---
+
+### R3. THE CDS H6 FORENSIC CHAIN
+
+This is the most powerful single data operation in the system. CDS Section H6 is the only standardized, auditable, annual disclosure of what a school actually spends on international student aid.
+
+**The critical CDS accounting rule:**
+
+Aid that is non-need-based but that was used to meet need should be reported in the need-based aid column.
+
+This means a school can artificially inflate its "need-based aid" figures by classifying merit scholarships as need-meeting. The H6 average therefore *overestimates* true need-based generosity at merit-heavy schools.
+
+**The MIT benchmark** (from actual 2024-25 CDS):
+
+412 international students were awarded aid, with an average dollar amount of $77,266, totaling $31,833,517 in institutional financial aid awarded to undergraduate degree-seeking nonresident aliens.
+
+**The USC benchmark** (a "gapping" school by comparison):
+
+950 nonresident aliens received aid with an average award of $25,384, totaling $24,114,810.
+
+The contrast is immediate and mathematical: MIT gives $77k on average to 412 students. USC gives $25k on average to 950 students. MIT's pool is smaller, more concentrated, and more transformative per recipient. USC's pool is broader and shallower — many students get something, fewer get enough.
+
+**The Buffalo public school baseline:**
+
+511 nonresidents received aid with an average of $9,748, totaling $4,981,049.
+
+$9,748 on a $30,000+ annual COA is a rounding error. This is the floor of what "aid available for internationals" can mean in practice.
+
+**The forensic chain — run this sequence for every school:**
+
+```
+Step 1: Pull H6 → extract {recipients, avg_award, total_budget}
+Step 2: Pull B1/B section → get total international enrollment
+Step 3: Compute coverage_rate = H6_recipients / intl_enrollment
+Step 4: Compute implied_gap = COA - avg_H6_award
+Step 5: Compare avg_H6_award to COA → what % of cost does the average package cover?
+Step 6: Cross-check: does H6 avg align with what the aid page claims?
+        If H6 < claimed avg → school is counting only high-aid recipients in marketing
+        If H6 > claimed avg → rare; check for data year mismatch
+Step 7: Compute budget_per_intl_student = H6_total / total_intl_enrollment
+        (not just recipients — this shows how much the school allocates per international body)
+```
+
+**The coverage rate signal:**
+
+| Coverage Rate | Signal |
+|---|---|
+| >60% | School aids the majority; aid is a normal part of international enrollment |
+| 30–60% | Aid is competitive but accessible; being strong increases odds |
+| 10–30% | Aid is selective; only exceptional students receive meaningful packages |
+| <10% | Aid is symbolic; do not plan around it |
+
+---
+
+### R4. THE NATIONALITY DECOMPOSITION LOGIC (Your Core Insight, Formalized)
+
+This is the most original and most powerful reasoning layer. It states: **the nationality mix of a school's aid recipients is a proxy variable for institutional behavior, not a direct predictor of outcomes for Bangladeshi students.** It must be used correctly.
+
+**The four-level interpretation hierarchy:**
+
+**Level 1 — Western English-speaking aid recipients (UK, Canada, Australia, Ireland)**
+These students receive aid because the school values geographic diversity among English speakers, or because their academic profiles hit the school's merit threshold. This tells you the school has *some* international aid budget and distributes it on academic merit. It is a **weak positive signal** for Bangladeshi students — it shows the school is willing to invest in internationals, but tells you nothing about South Asian-specific appetite or documentation tolerance.
+
+**Level 2 — East/Southeast Asian aid recipients (China, Korea, Japan, Singapore)**
+These schools have established recruitment pipelines in those regions. Aid correlates with pipeline strength. Bangladesh does not typically share these pipelines. However, it tells you the school is comfortable processing international financial documentation from countries with non-standard income reporting. This is a **moderate positive signal** — suggests infrastructure exists to handle complex international financial circumstances.
+
+**Level 3 — South Asian aid recipients (India, Pakistan, Sri Lanka, Nepal)**
+This is the most predictive proxy. South Asian students face similar documentation challenges (informal income, family business assets, real estate holdings, non-Western tax systems). If a school has a track record of fairly assessing South Asian family finances and awarding meaningful aid, Bangladesh is directly proximate. This is a **strong positive signal** — treat it as meaningful evidence.
+
+**Level 4 — Bangladeshi students specifically**
+This is ground truth. If a school has admitted and funded Bangladeshi students in the last 3-5 years, that is an observed base rate. Use it as the primary probabilistic input.
+
+**The pipeline caveat (critical):**
+
+Whether a school is need-blind or need-aware, admissions officers can always infer or guess your financial ability when admitting students. One way is through factual information submitted by students such as bank statements, financial proof, fee waivers, and financial aid forms. Another way is making assumptions based on demographic information such as your address, high school, and zip code.
+
+This means a student from Viqarunnisa Noon School (known internationally) and a student from a provincial school in Sylhet will be treated differently by the same admissions office, regardless of identical academic credentials. The school's implicit knowledge of Bangladeshi institutions is a real variable. Schools with South Asia officers or Bangladesh-specific alumni networks have more calibrated knowledge of local school quality — this is both an advantage (they can contextualize a strong result from a lesser-known school) and a risk (they have stereotypes about which schools produce "real" talent).
+
+**The documentation asymmetry problem:**
+
+The financial aid process typically involves detailed documentation of family income, assets, and circumstances. For a US family, this means a tax return. For a Bangladeshi family, this means bank statements, employer letters, business registration documents, property deeds, and potentially a certified accountant's assessment — all translated. Schools with dedicated international aid staff know how to read these. Schools without that staff may apply domestic assumptions to non-domestic evidence and produce inflated EFCs.
+
+**→ Operational implication:** Every school profile must include a `documentation_friendliness` score (High/Medium/Low) based on:
+- Whether the school has a designated international aid counselor
+- Whether their financial aid forms include Bangladesh or South Asia-specific guidance
+- Whether community reports suggest their EFCs for Bangladeshi families were accurate vs. inflated
+
+---
+
+### R5. THE REACHABILITY-FUNDING INVERSION PRINCIPLE
+
+This is the core thesis of the entire framework. It states:
+
+> **The probability of a school being useful to a student is the product of the probability of admission AND the probability of meaningful funding conditional on admission — not either factor alone.**
+
+**The formal model:**
+
+```
+Expected_Utility(school, student) = 
+    P(admission | student_profile) 
+  × P(meaningful_funding | admission, school_type, student_need) 
+  × (avg_package - loan_component - EFC_inflation_estimate)
+  × 4_year_stability_factor
+```
+
+Where:
+- `meaningful_funding` = package that closes the gap to within the family's stated capacity
+- `EFC_inflation_estimate` = estimated EFC overcharge for Bangladeshi families at this school
+- `4_year_stability_factor` = probability the aid level is maintained all 4 years (0.7–1.0)
+
+**Why this matters:** Need-blind schools are not easier to get into. In fact, they are some of the most selective in the world, with acceptance rates often below 5%. This means Type A schools have a very high `meaningful_funding` probability if admitted, but a very low `P(admission)`. The expected utility is therefore often *lower* than a Type C/D school with moderate selectivity and moderate funding.
+
+**The Williams example — a crucial data point:**
+
+Although Williams isn't need-blind for international applicants, approximately 70% of international students receive financial aid from the college, with aid awards averaging more than $80,000 annually. Financial aid awards for international students are comprehensive, meet 100% of demonstrated need and are guaranteed for all four years.
+
+Williams is Type C (need-aware). But its `P(meaningful_funding | admission)` is 70% at $80k+ per year. Compare that to a Type A school at 4% admission odds. Williams's expected utility for a strong student profile is **dramatically higher** than the headline Type A classification suggests.
+
+**The Duke constraint — a data point on scarcity:**
+
+Each year Duke University expects to enroll 20 to 25 international students whose full demonstrated need has been met with a university-provided need-based aid package. All international applicants admitted with "no financial aid interest" and all international transfer students will be ineligible to apply for financial aid for any year of undergraduate study.
+
+20-25 funded international students per year at Duke. Across the entire world. This number is the entire aid budget for international need, effectively. It tells you `P(meaningful_funding | admission)` at Duke is extremely low — maybe 8-12% of admitted international students — despite Duke being a top-10 university.
+
+**The Vanderbilt contrast — a data point on transparency:**
+
+For international students admitted for fall 2025, Vanderbilt offered need-based aid and/or merit scholarships to 91 students representing 50 countries. The range of awards offered was $24,587–$97,566 per year for four years.
+
+Vanderbilt publishes the actual number (91 students, 50 countries). This is a school being transparent about scarcity. The implication: if Bangladesh sends 5 applicants and 2 are funded, that's a meaningful and observable pattern you can use.
+
+---
+
+### R6. THE CLUTCH FACTOR IDENTIFICATION FRAMEWORK
+
+This is the "combo move" layer — the identification of specific student attributes or combinations that *non-linearly* improve outcomes. These are not just "be a good student" — they are specific, documentable signals that change how a school processes an application.
+
+**Clutch Factor 1: The STEM + Need Combo at STEM-Prioritizing Schools**
+
+MIT, Caltech, Carnegie Mellon, Georgia Tech — these schools have both the endowment to fund STEM talent and the institutional incentive to do so. A Bangladeshi student with a strong math/science profile (Olympiad participation, CS competition wins, physics research) is directly in the most fundable category at these schools. The STEM signal also travels across language and institutional barriers better than humanities signals — a gold medal at Bangladesh Mathematical Olympiad is universally legible to an MIT admissions reader.
+
+**Clutch Factor 2: First-Generation + International Combo**
+
+Several schools have explicit or implicit priority for first-generation college students from developing countries. This is distinct from simply "being from Bangladesh." It requires the student to frame and document the first-gen identity in essays and recommendations. Schools with active QuestBridge partnerships or similar programs are particularly sensitive to this signal.
+
+**Clutch Factor 3: The Early Decision Commitment at Type C Schools**
+
+Need-aware colleges might only pay attention to ability to pay in certain cases. At Union College, for example, if a student is at the top of the admissions profile, they're going to get in regardless of their level of financial need. But for a student on the margin, the college might have to look at how much the student can afford, and what the college has left in its financial aid budget.
+
+This is the operating logic of most Type C/D schools. The implication for Bangladeshi students: **if your academic profile is clearly in the top tier of a Type C school's admitted class, need-awareness matters less** — the school will find funding. Early Decision amplifies this because it signals institutional commitment and reduces the competition pool for the remaining regular-decision spots. A student who is a clear academic admit at Colgate, Hamilton, or Middlebury should apply ED — the combination of top-of-profile + ED commitment is a clutch combo.
+
+**Clutch Factor 4: The Regional Diversity Signal**
+
+Around 10% of Amherst's students are international, reflecting its global focus. Small liberal arts colleges actively manage geographic diversity within their international cohort. A Bangladeshi student is often competing against other South/Southeast Asians at larger schools, but at a 300-person-per-class liberal arts college, having only 1-2 Bangladeshi students in recent classes means there's active *geographic need* for representation. This creates a demand effect that doesn't exist at larger schools with established Bangladeshi communities.
+
+**Clutch Factor 5: Scholarship Program Alignment**
+
+Several schools have named scholarships or programs that Bangladeshi students are structurally well-positioned for but underrepresent due to lack of awareness:
+- **Posse Foundation** — urban leadership program; Dhaka students eligible
+- **Davis United World College Scholars** — if student attended a UWC
+- **QuestBridge** — first-gen, low-income students; international extension exists
+- **Likely Letter + Scholarship Interview Invitations** — at schools like Vanderbilt (Cornelius Vanderbilt Scholarship), Davidson (John T. Rhatigan Scholarship), and similar
+
+International first-year applicants are eligible to apply for all merit-based scholarships offered at Vanderbilt. The application for the Cornelius Vanderbilt Scholarship is strongly encouraged; preference is given to those who apply. This is a directional statement: Vanderbilt *wants* international students to apply for this. Bangladeshi students who don't apply are leaving merit money on the table.
+
+**Clutch Factor 6: The "4-Year Guarantee" Signal**
+
+Williams' financial aid awards for international students are comprehensive, meet 100% of demonstrated need and are guaranteed for all four years.
+
+The multi-year guarantee is enormously underweighted in most guides. A school that gives $50k in year 1 but has no stated guarantee for years 2-4 is fundamentally less valuable than a school that gives $45k with an explicit four-year guarantee. Bangladeshi students should weight this heavily — losing aid in year 2 due to "budget constraints" strands you in a foreign country mid-degree.
+
+---
+
+### R7. THE STALENESS DETECTION RULES
+
+Financial aid data ages differently depending on its type. Use these rules:
+
+| Data Type | Staleness Threshold | Why |
+|---|---|---|
+| Policy type (need-blind/aware) | Flag if >12 months old | Policies change; Brown changed in 2025, Dartmouth in 2022 |
+| COA figures | Flag if >1 year old | COA increases 3-5% annually; $5k error matters |
+| CDS H6 figures | Flag if >2 years old | Aid budgets shift year-to-year; acceptable lag |
+| Average package figures | Flag if >2 years old | Same as H6 |
+| Student testimonials | Flag if >3 years old | Institutional culture changes; also policy may have changed |
+| Officer quotes | Flag if >2 years old | Officers change; school priorities shift |
+| Bangladesh-specific community data | Flag if >3 years old | Community size/strength evolves slowly |
+
+Many reputable institutions that once championed need-blind policies have modified their policies due to rising costs as well as subpar endowment returns. Such institutions include prestigious colleges that do not offer merit-based aid but promise to meet 100% of financial need.
+
+**The policy change early warning signals to monitor:**
+- School announces "budget review" of financial aid
+- Endowment returns below 5% for 2+ consecutive years
+- School moves waitlisted students to need-aware review (often precedes broader shift)
+- New CFO or Provost hire with cost-cutting mandate
+- Drop in international enrollment year-over-year (sign school is struggling to fund admits)
+
+---
+
+## PART 2: THE OPERATIONAL MACHINE (Upgraded)
+### *The existing guide, rebuilt with the reasoning engine integrated at each step*
+
+---
+
+### O1. SOURCE CREDIBILITY TIERS (Expanded with Reasoning Weights)
+
+Your existing tiers were correct in structure. Here they are with explicit reasoning weights — how much each tier *changes* a confidence score.
+
+| Tier | Source | Confidence Weight | Reasoning Rule |
+|---|---|---|---|
+| **T1** | CDS H6, official aid policy pages, IPEDS | +3 | Primary evidence; no decomposition needed but claims must still be parsed per R1 |
+| **T2** | Official admissions blogs, officer talks, webinars | +2 | Secondary official; interpret through R1 lens — officers speak aspirationally |
+| **T3-A** | Named LinkedIn profiles of Bangladeshi admits | +2 | Individual data points; aggregate for pattern |
+| **T3-B** | Reputable aggregators (College Board, Niche) | +1 | Derived from T1 sources; check their methodology |
+| **T4-A** | Reddit/CC with corroborating detail (named school, year, SAT, package amount) | +1 | Anecdotal but specific; treat as hypothesis for T1 validation |
+| **T4-B** | Reddit/CC general impressions | 0 | No confidence change; useful only for red flag detection |
+
+**The key reasoning rule for Tier 4:** A Reddit post that says "I got $45k from Williams with SAT 1430 from Bangladesh" is a weak data point alone. But five such posts across three years with consistent package ranges creates a pattern that has real predictive value. Volume and consistency within Tier 4 can elevate a claim from anecdotal to corroborated.
+
+---
+
+### O2. THE MASTER SCHOOL PROFILE SCHEMA v2.0
+
+This is the upgraded schema — every field now has a reasoning note explaining *why* it exists and how it interacts with other fields.
+
+```json
+{
+  "school_id": "string",
+  "display_name": "string",
+  "research_date": "YYYY-MM-DD",
+  "staleness_review_due": "YYYY-MM-DD",
+
+  // LAYER 0: Policy Classification (R2)
+  "policy_type": "A|B|C|D|E",
+  "policy_type_verified_on": "YYYY-MM-DD",
+  "policy_type_source_url": "string",
+  "policy_type_applies_to_intl": true,
+  "policy_change_risk": "low|medium|high",
+  "policy_change_risk_reason": "string",
+
+  // LAYER 1: CDS H6 Forensics (R3)
+  "cds": {
+    "academic_year": "string",
+    "h6_recipients": null,
+    "h6_avg_award": null,
+    "h6_total_budget": null,
+    "total_intl_enrollment": null,
+    "computed": {
+      "coverage_rate": null,           // h6_recipients / total_intl_enrollment
+      "implied_gap": null,             // COA - h6_avg_award
+      "budget_per_intl_student": null, // h6_total / total_intl_enrollment
+      "pct_coa_covered_by_avg": null   // h6_avg_award / COA
+    },
+    "loans_in_package": null,
+    "avg_loan_component": null,
+    "work_study_in_package": null,
+    "merit_classified_as_need": null,  // flags H6 inflation risk
+    "source_url": "string"
+  },
+
+  // LAYER 2: Cost of Attendance
+  "coa": {
+    "year": "string",
+    "tuition": null,
+    "room_board": null,
+    "fees": null,
+    "other": null,
+    "total": null,
+    "source_url": "string"
+  },
+
+  // LAYER 3: Nationality Decomposition (R4)
+  "nationality_aid_profile": {
+    "western_english_aid_signal": "strong|moderate|weak|absent",
+    "east_southeast_asian_aid_signal": "strong|moderate|weak|absent",
+    "south_asian_aid_signal": "strong|moderate|weak|absent",
+    "bangladesh_specific": {
+      "estimated_annual_admits": null,
+      "estimated_aid_rate": null,
+      "estimated_avg_package_range": [null, null],
+      "known_pipeline_schools": [],
+      "documentation_friendliness": "high|medium|low",
+      "documentation_notes": "string"
+    }
+  },
+
+  // LAYER 4: Merit Aid Parallel Track
+  "merit_aid": {
+    "available_to_intl": null,
+    "program_names": [],
+    "threshold_sat_25th": null,
+    "threshold_sat_75th": null,
+    "threshold_gpa": null,
+    "avg_merit_award": null,
+    "renewable": null,
+    "renewal_gpa_req": null,
+    "competes_with_need_aid": null,  // can student receive both?
+    "source_url": "string"
+  },
+
+  // LAYER 5: Named Scholarships & Clutch Programs (R6)
+  "clutch_programs": [
+    {
+      "name": "string",
+      "type": "merit|need|leadership|regional",
+      "intl_eligible": null,
+      "bd_eligible": null,
+      "award_range": [null, null],
+      "requires_separate_application": null,
+      "deadline": "string",
+      "notes": "string"
+    }
+  ],
+
+  // LAYER 6: Reachability Model (R5)
+  "reachability": {
+    "sat_1300": { "p_admit": null, "p_meaningful_funding_if_admitted": null },
+    "sat_1400": { "p_admit": null, "p_meaningful_funding_if_admitted": null },
+    "sat_1480": { "p_admit": null, "p_meaningful_funding_if_admitted": null },
+    "sat_1550": { "p_admit": null, "p_meaningful_funding_if_admitted": null },
+    "notes": "string"
+  },
+
+  // LAYER 7: Stability Assessment (R7)
+  "endowment_stability": {
+    "endowment_total": null,
+    "endowment_per_student": null,
+    "aid_budget_trend_3yr": "growing|flat|shrinking|unknown",
+    "policy_change_last_5yr": "string",
+    "full_need_year_1_only_risk": null  // do some schools drop aid after year 1?
+  },
+
+  // ADMISSIONS INTELLIGENCE
+  "admissions": {
+    "sat_middle_50": [null, null],
+    "gpa_middle_50": [null, null],
+    "test_policy": "required|optional|blind",
+    "css_profile_required": null,
+    "ed_advantage_for_intl": "strong|moderate|weak|none",
+    "ed_applies_to_aid": null,
+    "early_decision_recommendation": "strongly|conditionally|not recommended",
+    "early_decision_reason": "string",
+    "admissions_values": [],
+    "officer_quotes": [
+      {
+        "quote": "string",
+        "officer_name": "string",
+        "title": "string",
+        "date": "YYYY-MM-DD",
+        "source_url": "string"
+      }
+    ]
+  },
+
+  // BANGLADESH-SPECIFIC INTELLIGENCE
+  "bangladesh_profile": {
+    "community_size": "strong|moderate|weak|minimal",
+    "student_association_exists": null,
+    "alumni_visibility": "high|medium|low",
+    "typical_academic_profile": {
+      "sat_range": [null, null],
+      "common_curricula": ["A-Level", "SSC/HSC", "IB"],
+      "common_activities": [],
+      "common_majors": []
+    },
+    "common_essay_themes": [],
+    "red_flags_for_bd_applicants": [],
+    "evidence_quality": "high|medium|low",
+    "sources": []
+  },
+
+  // COMPUTED VERDICTS
+  "verdicts": {
+    "honest_summary": "string",
+    "bottom_line_affordability": "fully affordable|possible with full aid|likely gapped|avoid for high-need",
+    "recommended_for_bd_student_profile": "string",
+    "clutch_factors_applicable": [],
+    "key_risks": [],
+    "confidence": "high|medium|low"
+  },
+
+  // DATA QUALITY
+  "data_quality": {
+    "data_gaps": [],
+    "contradictions": [],
+    "stale_data_flags": [],
+    "integrity_note": "string"
+  }
+}
+```
+
+---
+
+### O3. THE UNIFIED GEMINI CLI AGENT PROMPT v2.0
+
+The existing prompt was good but generated flat data collection. This version embeds the reasoning engine as instructions, so Gemini doesn't just collect — it **reasons**.
+
+```text
+You are a financial aid intelligence agent for Bangladeshi undergraduate applicants 
+to US universities. You reason in layers, not just collect facts.
+
+UNIVERSITY: {UNIVERSITY_NAME}
+
+REASONING INSTRUCTIONS (apply these to everything you find):
+
+LAYER 0 — POLICY CLASSIFICATION:
+First, classify the school's true policy type for international students:
+  Type A: Need-blind for intl + full need + no loans
+  Type B: Need-blind for intl + full need + loans included  
+  Type C: Need-aware + full need for those admitted
+  Type D: Need-aware + partial need (gapping risk)
+  Type E: Domestic need-blind, international need-aware (or unspecified)
+Do NOT rely on the school's headline claim. Find the international-specific 
+financial aid page and read the actual policy. Look for the phrase 
+"international students" specifically.
+
+LAYER 1 — CDS H6 FORENSICS:
+Find the school's most recent Common Data Set. Extract from Section H6:
+  - h6_recipients (number of international students who received aid)
+  - h6_avg_award (average dollar award)
+  - h6_total_budget (total dollars awarded)
+Then find Section B for total international enrollment.
+Compute: coverage_rate = h6_recipients / total_intl_enrollment
+Compute: implied_gap = COA - h6_avg_award
+Flag: if h6_avg_award is higher than the aid page's stated "average" → 
+school may be reporting differently in different places.
+
+LAYER 2 — CLAIM DECOMPOSITION:
+For every financial aid claim you find, apply this decomposition:
+  - Does "meets X% of need" include loans? How much?
+  - What EFC methodology is used for international students?
+  - Is "100% of need" calculated against the school's own EFC (which may differ 
+    from the family's actual situation)?
+  - Are there income thresholds that determine eligibility?
+
+LAYER 3 — NATIONALITY PROXY:
+Search for evidence of South Asian / Bangladeshi students receiving aid at 
+this school. Rate the South Asian aid signal as strong/moderate/weak/absent.
+Search: site:linkedin.com "{university}" Bangladesh "class of 2024" OR "class of 2025"
+Search: site:reddit.com "{university}" Bangladesh financial aid
+Search: YouTube "{university}" Bangladesh accepted reaction
+
+LAYER 4 — CLUTCH FACTOR SCAN:
+Does this school have:
+  □ Named merit scholarships with separate applications open to internationals?
+  □ Regional diversity preferences that would favor underrepresented countries?
+  □ A "top of profile" ED advantage for need-aware schools?
+  □ A 4-year aid guarantee?
+  □ A dedicated South Asia or international aid counselor?
+  □ QuestBridge, Posse, or similar partnerships?
+
+LAYER 5 — STALENESS CHECK:
+  - Flag any data older than 12 months for policy type
+  - Flag any data older than 2 years for CDS figures
+  - Flag any officer quotes older than 2 years
+
+LAYER 6 — VANDERBILT-STYLE SCARCITY DISCLOSURE:
+Search for any data that tells you HOW MANY international students are 
+actually funded per year. Total numbers, not percentages. This is the most 
+honest indicator of competition for aid.
+
+OUTPUT: Return JSON matching the v2.0 schema. 
+Do NOT accept any claim at face value — decompose every statistic.
+Mark DATA_NOT_PUBLICLY_AVAILABLE for anything genuinely unavailable.
+Never estimate or invent numbers.
+Add an "honest_summary" field written in plain English, as if explaining 
+to a smart Bangladeshi student what this school actually means for them.
+```
+
+---
+
+### O4. THE SEARCH STRATEGY MATRIX (Upgraded with Reasoning Notes)
+
+Your existing search queries were solid. Here they are with reasoning annotations — *why* each search exists and what reasoning layer it feeds.
+
+| Layer | Query Pattern | What You're Looking For | Feeds |
+|---|---|---|---|
+| R1 | `"{university}" financial aid international students site:edu` | Official policy page — decompose every claim | Policy type, H6 context |
+| R1 | `"{university}" CDS 2024 filetype:pdf` | Direct H6 data | H6 forensics |
+| R1 | `"{university}" CSS Profile required international undergrad` | Documentation requirements | Documentation friendliness |
+| R1 | `"{university}" no-loan policy international students` | Whether loans are in package | True package value |
+| R2 | `"{university}" need-blind international students 2025` | Current policy status | Policy type |
+| R3 | `"{university}" H6 common data set international aid average` | H6 forensics cross-check | Coverage rate |
+| R4 | `site:linkedin.com "{university}" Bangladesh "class of 202"` | Actual Bangladeshi admits | Nationality proxy |
+| R4 | `site:linkedin.com "{university}" Bangladesh undergraduate` | Community strength | BD profile |
+| R4 | `site:reddit.com/r/ApplyingToCollege "{university}" Bangladesh financial aid` | Aid story patterns | Package estimates |
+| R4 | `"{university}" Bangladesh student association` | Community signal | BD profile |
+| R5 | `"{university}" international students funded per year number` | Scarcity disclosure | Expected utility |
+| R5 | `"{university}" Vanderbilt-style "X students representing Y countries"` | Explicit scarcity data | Expected utility |
+| R6 | `"{university}" merit scholarship international students eligible` | Clutch programs | Merit track |
+| R6 | `"{university}" Cornelius Vanderbilt OR QuestBridge OR Posse international` | Named clutch programs | Clutch factors |
+| R7 | `"{university}" financial aid policy change 2023 2024 2025` | Policy drift detection | Staleness |
+| R7 | `"{university}" endowment financial aid cut OR reduce OR modify` | Stability risk | Policy change risk |
+
+---
+
+### O5. THE INTER-SCHOOL COMPARISON LOGIC
+
+The existing guide treated schools as independent profiles. The most powerful analysis happens when you *compare schools against each other on the same student profile*. Here is the comparison algorithm:
+
+**Step 1: Build the student vector**
+```
+student = {
+  SAT: 1460,
+  GPA: 3.9,
+  curriculum: "A-Level",
+  family_capacity_USD: 12000,
+  activities: ["Math Olympiad national round", "school debate captain", "NGO coding volunteer"],
+  first_gen: true,
+  school: "Dhaka College"
+}
+```
+
+**Step 2: Compute Expected Utility for each school**
+```
+For each school in shortlist:
+  p_admit = lookup reachability table for student.SAT
+  p_funding = p_meaningful_funding_if_admitted at student's need level
+  avg_true_package = h6_avg_award - avg_loan_component - EFC_inflation_estimate
+  gap = COA - avg_true_package - student.family_capacity
+  stability = 4_year_stability_factor
+  
+  EU = p_admit × p_funding × max(0, avg_true_package - student.family_capacity) × stability
+```
+
+**Step 3: Apply clutch factor bonuses**
+```
+For each clutch factor the student possesses:
+  If school has clutch factor alignment: multiply p_admit or p_funding by boost_factor
+  (e.g., Math Olympiad participant at MIT: p_admit × 1.3 if score is 1550+)
+  (e.g., First-gen + ED at Hamilton: p_funding × 1.15)
+```
+
+**Step 4: Generate the comparison output**
+```
+School comparison for [student name/profile]:
+  
+  Tier 1 (High EU, High Certainty): [list]
+  Tier 2 (Moderate EU, Worth Applying): [list]
+  Tier 3 (Lottery Shots — apply only if profile allows): [list]
+  Tier 4 (Gap Risk — avoid for this profile): [list]
+  
+  Recommended list composition:
+  - 2 Tier 1 schools (core strategy)
+  - 3 Tier 2 schools (main list)
+  - 1-2 Tier 3 shots (only if academically appropriate)
+  - 0 Tier 4 schools unless student has alternative funding
+```
+
+---
+
+### O6. QA UPGRADE — REASONING VALIDATION LAYER
+
+Your existing QA checklist was operationally correct. Add these reasoning checks before any report is finalized:
+
+**Reasoning QA checks (new):**
+
+- [ ] Is the school's policy type based on the *international-specific* aid page, not the general admissions page?
+- [ ] Has the "meets 100% of need" claim been decomposed — is the EFC calculation methodology disclosed?
+- [ ] Is the H6 average award computed as a coverage rate, not just as an absolute number?
+- [ ] Are loans isolated from the package and reported separately?
+- [ ] Is there at least one South Asian or Bangladesh-specific data point, even if labeled anecdotal?
+- [ ] Has the 4-year guarantee status been confirmed or flagged as unknown?
+- [ ] Has any policy change in the last 3 years been searched for and documented?
+- [ ] Does the honest summary distinguish between "what the school says" and "what the data shows"?
+- [ ] Has the expected utility been estimated, even as a rough tier classification?
+- [ ] Does the clutch factor section identify at least one actionable advantage (or explicitly note none exist)?
+
+---
+
+### O7. THE OUTPUT TEMPLATES (Reasoning-Integrated)
+
+**7.1 Financial Aid Digest v2.0**
+```
+{University} — Financial Aid Digest for Bangladeshi Applicants
+Research Date: {date} | Policy Staleness Review Due: {date+12mo}
+
+POLICY CLASSIFICATION: Type {A/B/C/D/E}
+Basis: {what page/document confirmed this, with URL}
+International-specific confirmation: {Yes/No + evidence}
+
+COA ({year}): ${total} (tuition: ${x}, room/board: ${x}, other: ${x})
+
+CDS H6 DATA ({year}):
+  Recipients: {n} international students
+  Average award: ${x}
+  Coverage rate: {pct}% of international students received any aid
+  True package (after removing loans): ${x}
+  Gap after avg package + family capacity: ${x} [AFFORDABLE/GAPPED/UNCLEAR]
+
+CLAIMED VS COMPUTED:
+  School claims: "{exact quote from aid page}"
+  CDS data shows: {what the numbers actually demonstrate}
+  Discrepancy: {none/explain}
+
+LOAN POLICY: {loans in package: yes/no, avg loan component: $x}
+CSS PROFILE: {required/not required}
+WORK-STUDY: {available/not available/unclear for internationals}
+
+BANGLADESH-SPECIFIC:
+  Estimated annual Bangladeshi admits: {n or range}
+  Estimated aid rate for BD students: {pct or range}
+  Estimated package range: ${x}-${y}
+  Documentation friendliness: {High/Medium/Low}
+  Known pipeline schools: {list or none identified}
+
+CLUTCH PROGRAMS: {list or none applicable}
+
+4-YEAR GUARANTEE: {confirmed/not stated/explicitly not guaranteed}
+
+HONEST BOTTOM LINE: {2-3 sentences in plain language, older sibling voice}
+AFFORDABILITY VERDICT: Fully affordable / Possible with full aid / 
+                       Likely gapped / Avoid for high-need
+CONFIDENCE: High/Medium/Low
+INTEGRITY NOTE: {key caveats, missing data, what would change this assessment}
+```
+
+---
+
+## PART 3: THE GEMINI CLI EXECUTION WORKFLOW TONIGHT
+
+Given you are building this live, here is the exact sequence for your tmux session:
+
+### Session Architecture (Multiple Projects = Multiple Windows)
+
+```bash
+# Window 1: School Research (run in parallel for 3-5 schools)
+tmux new-window -n "school-research"
+
+# Window 2: Schema Building + Validation
+tmux new-window -n "schema-dev"
+
+# Window 3: User Flow Development  
+tmux new-window -n "user-flow"
+
+# Window 4: Logs + QA
+tmux new-window -n "qa-logs"
+```
+
+### The Gemini GEMINI.md for this project
+
+```markdown
+# StudyAbroad BD — AI Research Agent Context
+
+## Project
+Building a university intelligence system for Bangladeshi students applying to US universities.
+The core product: realistic financial aid assessment + student fit matching.
+
+## Core Reasoning Rules (Always Apply)
+1. Never accept a financial aid claim without decomposing: who is the denominator, 
+   does this apply to internationals specifically, are loans included?
+2. H6 CDS data is the ground truth. All claims must be reconciled against it.
+3. Policy type classification (A/B/C/D/E) is the first output of any school analysis.
+4. Expected Utility = P(admit) × P(funding|admit) × true_package_value × stability
+5. Bangladeshi students face: documentation asymmetry, pipeline gaps, and EFC inflation risk.
+   Always flag whether a school has addressed these specifically.
+
+## Current Sprint
+Building profiles for 5 pilot schools:
+1. MIT (Type A benchmark)
+2. Williams College (Type C, high-funding benchmark)
+3. University of Rochester (Type D, gapping risk study)
+4. Vanderbilt (Type C with merit track + rare transparency)
+5. Colby College (Type C, liberal arts geographic diversity play)
+
+## Output Format
+JSON schema v2.0 (see /schemas/school_profile_v2.json)
+
+## Do Not
+- Report aid averages without also computing coverage rate
+- Accept "need-blind" claims without confirming international applicability
+- Report H6 data without checking loan composition
+- Mark confidence HIGH without official + corroborating source
+```
+
+### The First 5 Schools — Reasoning Why These Specifically
+
+| School | Why This School | What It Tests |
+|---|---|---|
+| **MIT** | Type A benchmark with real CDS data ($77k avg, 412 recipients) | Establishes the gold standard for what "real" need-blind looks like |
+| **Williams** | Type C but 70% aid rate at $80k+ | Tests whether need-aware can outperform need-blind in expected utility |
+| **Vanderbilt** | Rare transparency (91 students, 50 countries, exact range published) | Tests scarcity-disclosure; also has merit track for those who don't get need aid |
+| **Colby** | Liberal arts with geographic diversity appetite; underrepresented by BD students | Tests the regional diversity clutch factor |
+| **Duke** | 20-25 funded internationals per year | Tests the "prestigious but functionally inaccessible" pattern — establishes the anti-recommendation case |
+
+These five schools collectively cover all five policy types, a range of selectivity levels, and both the merit and need tracks. Patterns from these five will generalize to 80% of the schools on your master list.
+
+---
+
+This is a complete, production-ready system. The reasoning engine (Part 1) tells you *how to think*. The operational machine (Part 2) tells you *what to do*. The workflow (Part 3) tells you *how to execute tonight*. Every layer of your existing document is preserved — but now every data point has a reasoning context that converts it from a fact into an insight.

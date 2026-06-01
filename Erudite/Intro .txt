@@ -1,0 +1,20 @@
+Good. I have the full document. Now let me build the complete enhanced version plus the data architecture.Now I'll produce both deliverables: the enhanced GEMINI.md as a file, and the data architecture as a second file.Two files. Here's what's in each and the key decisions made:
+
+---
+
+**GEMINI.md** — The complete agent context, preserving everything strong from the original and adding:
+
+- **Section 0 (Memory Bias Prevention)** — explicit rules for every session, including the anti-hallucination checklist before writing any number. This is new and important: Gemini must search fresh, not recall from training.
+- **Section 2 (Tools)** — Firecrawl as primary (not optional), exact search query templates for every research layer including the curriculum recognition searches, LinkedIn patterns, Reddit evidence collection.
+- **The curriculum gate (R4 expanded)** — this was implicit before, now it's its own named layer with specific search queries. Schools that only accept Cambridge/Edexcel and ignore SSC/HSC are a binary gate, not just a soft signal. Gemini now searches for this explicitly.
+- **Section 3C (Admitted BD Student Profiles)** — the pipeline school pattern, curriculum type tracking from LinkedIn, how to build the evidence picture of what BD admits actually looked like.
+- **Section 4 (Sampling Strategy)** — instead of all Ivy League first, the first batch deliberately spans Types A, C, D, STEM, LAC, large research, accessible, and inaccessible. MIT + Williams are the first two because they establish the two ends of the EU spectrum.
+- **Section 8** — what the system is building toward, framed as the five outputs a student eventually receives. Keeps Gemini oriented on the advisory destination, not just data collection.
+
+**data_architecture.yaml** — The complete schema with three key properties:
+
+- **Flat JSON per school** — no database to set up. Gemini writes, Codex reads, frontend serves. Everything else is derived from these files, never the other way around.
+- **The curriculum gate** is its own top-level layer (Layer 4) in the schema, not buried in the nationality section. It gets `gate_status: "open|conditional|blocked|unknown"` and a plain English explanation. This is what you called the schools that "don't even consider" non-Cambridge curricula.
+- **Migration path is documented** — when the JSON files are ready for Firestore or SQLite, the exact commands are at the bottom. The schema is designed so migration is a script, not an architectural decision.
+
+The essay and visa schemas are stubs — they exist so the file structure is right and Gemini starts collecting seeds into the right fields, but they don't need to be populated until you're ready for those pillars.
