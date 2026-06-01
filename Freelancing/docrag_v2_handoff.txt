@@ -1,0 +1,84 @@
+================================================================================
+DOCRAG-LEGAL V2: FINAL PRODUCTION HANDOFF SPECIFICATION
+================================================================================
+Date: Monday, June 1, 2026
+Project: DocRAG-Legal V2 (Enterprise Compliance Auditor)
+Author: Gemini CLI Advanced Reasoning Engine
+Target: realsamiul/TermiusGemini (Freelancing/docrag_v2_handoff.txt)
+================================================================================
+
+This specification serves as the final, complete production handoff file for 
+the DocRAG-Legal V2 system, containing live coordinates, verified endpoints, 
+and system usage guidance.
+
+--------------------------------------------------------------------------------
+1. ARCHITECTURE COORDINATES
+--------------------------------------------------------------------------------
+- Deployed Endpoint: `https://docrag-backend-719705716921.us-central1.run.app`
+- Health Check: `https://docrag-backend-719705716921.us-central1.run.app/health`
+- Web GUI Console: `https://docrag-backend-719705716921.us-central1.run.app/`
+- Active GCP Project: `project-a1f62154-a7ad-4b37-93b`
+- Active SA: `docrag-sa@project-a1f62154-a7ad-4b37-93b.iam.gserviceaccount.com`
+- Active region: `us-central1`
+
+--------------------------------------------------------------------------------
+2. LIVE POPULATED DATA STORES
+--------------------------------------------------------------------------------
+Three specialized search data stores are created, populated with PDFs, and fully 
+indexed under your standard, credit-safe Discovery Engine account:
+- Statutes Store (`statutes-search-store`): Sovereign South African Constitution.
+- IT Security Store (`it-security-search-store`): University of Huddersfield IT Security Policy.
+- Clinical Safety Store (`clinical-safety-search-store`): ICH GCP Good Clinical Practice Guidelines.
+
+--------------------------------------------------------------------------------
+3. INTERACTIVE ENDPOINTS USAGE
+--------------------------------------------------------------------------------
+
+A. Interactive Web GUI Console
+   - Open `https://docrag-backend-719705716921.us-central1.run.app/` directly in \n     Safari or Chrome. 
+   - Choose a panel, input your text, and click Execute. The page is hardened with 
+     enterprise-grade HTTP security headers (HSTS, clickjacking protection, etc.).
+
+B. Clause Risk Auditor (`POST /risk`)
+   - Analyzes raw clauses for corporate/compliance conflicts and gaps.
+   - Example payload:
+     ```json
+     {
+       "clause_text": "Vendor aggregate liability is limited to $5,000.",
+       "doc_id": "it-procurement-agreement-v4",
+       "clause_ref": "Sec-9.2"
+     }
+     ```
+
+C. Compliance Redliner (`POST /redline`)
+   - Generates verbatim, statutory-compliant clause rewrites.
+   - Example payload:
+     ```json
+     {
+       "clause_text": "Adverse events observed will be logged within 14 days. Non-fatal SAEs do not require immediate expedited reporting.",
+       "doc_id": "clinical-trial-protocol-101",
+       "clause_ref": "Safety-4.1"
+     }
+     ```
+
+D. Sovereign Statutes RAG (`POST /query`)
+   - Performs standard search, Gemini synthesis, and adversarial self-audit evaluation.
+   - Example payload:
+     ```json
+     {
+       "question": "What is the supreme law of the Republic and how is the Constitution amended?",
+       "session_id": "session-constitutional-law-demo",
+       "corpus_type": "statutes"
+     }
+     ```
+
+--------------------------------------------------------------------------------
+4. PERMANENT LEDGER REGISTRY
+--------------------------------------------------------------------------------
+All session exchanges, risk scores, and redlines are securely committed to the 
+Modal Ndjson persistent store (`docrag-persistence`) with cryptographically 
+chained provenance hashes to guarantee session immutability.
+
+================================================================================
+DocRAG-Legal V2 is fully hardened, verified, and complete!
+================================================================================
