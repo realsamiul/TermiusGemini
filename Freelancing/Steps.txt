@@ -1,0 +1,34 @@
+This is the right call. Clean slate, properly structured, with Gemini CLI as executor and you as architect. Let me think through the full picture before writing anything.
+
+**What Toptal actually evaluates:**
+- Architectural judgment (why decisions were made, not just what was built)
+- Production signals (auth, retry, observability, cost discipline)
+- Differentiation (something a reviewer hasn't seen 50 times)
+- Breadth across a portfolio (not one project, a pattern of thinking)
+
+**Your resource envelope:**
+- GCP $67 + Gen AI App Builder $1000 → Vertex AI RAG, Cloud Run, heavy GCP
+- Modal $90 → async workers, persistence, batch jobs
+- AWS $200 → could run a second project entirely separately
+
+**The shared technical foundation insight is key.** DocRAG uses: Vertex RAG Engine, Gemini Flash/Pro, Firebase Auth, FastAPI, Modal persistence, Next.js 14. You should extract maximum reuse from that stack across projects.
+
+Let me design the full clean plan now.Now let me write the full master document. This will be comprehensive.Now let me create the standalone AGENT_CONTEXT.md that Gemini CLI reads:Now let me create the run script — not a bash build script (those fail silently) but a checklisted setup script:Three files. Here's exactly what to do with them.
+
+---
+
+**Execution order:**
+
+**Today — write the protected files.** MASTER_PLAN_V2.md has all six of them fully specified in Part 8: `gemini.py`, `rag.py`, `rerank.py`, `eval_judge.py`, `storage.py`, `query.py`, and `store.py` (the Modal app). Copy each one verbatim into `~/docrag-v2/protected/`. This is the two hours that can't be delegated — it's where the portfolio value lives.
+
+**Then run preflight.sh.** It handles GCP APIs, IAM, GCS bucket, Modal token storage, corpus creation, Modal app deployment, and copying protected files into `backend/`. It's idempotent — safe to re-run if anything fails mid-way. The only thing it can't do is Firebase (browser-required) — the script tells you exactly what to do for that.
+
+**Then run the four Gemini CLI phases** from Part 10 in a tmux session: Phase A (backend boilerplate), Phase B (routers), the audit checkpoint in between, Phase C (deploy), Phase D (frontend), Phase E (scheduler + smoke tests).
+
+---
+
+**What's new vs the failed build:**
+
+The two architectural additions worth calling out: the `challenge_severity` field (LOW/MEDIUM/HIGH on every adversarial challenge) is three lines in the judge prompt and one field in the schema, but it makes the eval dashboard actually scannable rather than a wall of text. The provenance chaining — each answer's hash includes the previous one — turns a citation system into a tamper-evident audit trail. One sentence in the README, significant on a portfolio.
+
+**On the three-project strategy:** ContentSight (SEO) and CrisisRadar (AWS supply chain) are in Part 12-13. Same stack, different domain, different cloud. The Gen AI App Builder $1000 credits are specifically meant for Vertex Search at scale — ContentSight burns those productively rather than letting them sit. CrisisRadar uses the AWS $200 and shows multi-cloud range. Together the three projects take your "eval harness" pattern and demonstrate it's a repeatable architectural decision, not a one-time trick.
