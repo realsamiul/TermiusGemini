@@ -21,24 +21,20 @@ Request Payload:
 
 Response:
 {
-  "risk_level": "RED",
-  "compliant": false,
-  "conflicts": [
-    "The 30-business-day notification period is commercially unacceptable and conflicts with regulatory expectations for data security and incident reporting in Bangladesh, such as Bangladesh Bank's Guideline on ICT Security which mandates immediate reporting.",
-    "The nominal $5,000 liability cap for data breaches may be viewed as an unconscionable term that defeats the fundamental purpose of the contract, potentially rendering it void or unenforceable under Section 23 of the Contract Act, 1872."
-  ],
+  "risk_level": "YELLOW",
+  "compliant": true,
+  "conflicts": [],
   "gaps": [
-    "Missing a standard 72-hour (or 'without undue delay') breach notification timeline.",
-    "Lack of a carve-out from the limitation of liability for gross negligence, willful misconduct, or breaches of confidentiality and data privacy.",
-    "No provisions requiring the Vendor to mitigate the breach, preserve forensic evidence, or cooperate with regulatory investigations."
+    "The notification timeline of thirty (30) business days is commercially unacceptable and exposes the Customer to prolonged security risks and potential regulatory exposure.",
+    "The use of 'commercially reasonable efforts' dilutes the Vendor's obligation to notify, whereas breach notification should be an absolute, unqualified obligation.",
+    "The liability cap of $5,000 is nominal and fails to cover the actual costs of a data breach (such as forensic investigation, customer notification, legal fees, and potential regulatory fines)."
   ],
-  "recommendation": "Amend the clause to require notification 'without undue delay and in no event later than 72 hours' after identifying a breach. Increase the liability cap for security incidents to a realistic 'super-cap' (e.g., 3x to 5x the annual contract value) or exclude data protection and confidentiality breaches from the liability cap entirely. Add obligations for the Vendor to mitigate the breach and indemnify the Customer for regulatory fines and third-party claims.",
+  "recommendation": "Negotiate the notification timeline down to 72 hours or a maximum of 5 business days from discovery. Change 'commercially reasonable efforts to notify' to 'shall notify'. Increase the liability cap for security incidents to either an unlimited liability category or a separate, much higher super-cap (e.g., 2x-5x the annual contract value or a specific high dollar amount like $1,000,000).",
   "statute_refs": [
-    "Contract Act, 1872 § 23",
-    "Contract Act, 1872 § 73",
-    "Cyber Security Act, 2023"
+    "Contract Act, 1872",
+    "Information and Communication Technology Act, 2006"
   ],
-  "confidence": 0.85
+  "confidence": 0.9
 }
 
 --------------------------------------------------------------------------------
@@ -97,20 +93,20 @@ Response:
   "sources": [
     {
       "index": 1,
-      "doc_title": "6f8fb250177e1ef3297d59adabd2b0e5",
-      "retrieval_score": 0.75,
-      "text_preview": "<proto.marshal.collections.maps.MapComposite object at 0x7f16911401d0>",
-      "chunk_hash": -2496225244615269071
+      "doc_title": "bangladesh_labour_act_2006",
+      "retrieval_score": 0.5,
+      "text_preview": "{'title': 'bangladesh_labour_act_2006', 'can_fetch_raw_content': 'true', 'link': 'gs://project-a1f62154-a7ad-4b37-93b-docs/statutes/bangladesh_labour_act_2006.pdf'}",
+      "chunk_hash": 1245607190573118509
     }
   ],
   "eval": {
     "faithfulness_score": 1.0,
     "citations_accurate": {},
-    "adversarial_challenge": "The retrieved context contains only a serialized object reference and contains no textual information or legal data, making it impossible to extract any answer or construct a counter-argument.",
+    "adversarial_challenge": "The retrieved context only contains metadata for the Bangladesh Labour Act 2006, which does not contain any information regarding the election or term of the President of the Republic. Thus, no counter-argument can be made from the provided context.",
     "challenge_severity": "LOW",
     "verdict": "PASS",
-    "provenance_hash": "423137e7b262b5da",
-    "reasoning": "The system correctly identified that the retrieved context is completely devoid of readable text or relevant information to answer the question, making 'Insufficient context to answer' the correct and faithful response."
+    "provenance_hash": "dd1817e956ddf46c",
+    "reasoning": "The system correctly identified that the retrieved context (Bangladesh Labour Act 2006) is insufficient to answer a constitutional question about the election and term of the President."
   },
   "session_id": "session-constitutional-law-demo"
 }
