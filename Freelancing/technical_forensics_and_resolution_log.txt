@@ -16,7 +16,7 @@ STEP 1: Python 3.14 Pydantic Rust-Bindings Compilation Crash
 --------------------------------------------------------------------------------
 - Action: I initiated the initial preflight check on Python 3.14.4. The environment 
   attempted to compile older `pydantic-core` from source.
-- Error Observed: Legay C-API Unicode macros (e.g. `PyUnicode_New`) were removed 
+- Error Observed: Legacy C-API Unicode macros (e.g. `PyUnicode_New`) were removed 
   in Python 3.14, causing the Rust compiler to crash with a build error.
 - Modification: I ran `pip install vertexai==1.71.1 --no-deps`.
 - Result: Upgraded `google-cloud-aiplatform` to `1.154.0` and `vertexai` to `1.71.1`, 
@@ -138,6 +138,26 @@ STEP 8: Evaluation Judge String Formatting KeyError (`eval_judge.py` Crash)
   with `"citation_index"`, escaping bracket conflicts from the `.format()` parser.
 - Result: Resolved formatting KeyError. The `/query` endpoint successfully 
   executes and returns audited payloads.
+
+--------------------------------------------------------------------------------
+STEP 9: Discovery Engine SearchResult MapComposite Parsing Failure
+--------------------------------------------------------------------------------
+- Action: I queried the `/query` endpoint of the live server.
+- Error Observed: In the `/query` JSON response, retrieved document snippets showed 
+  as serialized python objects: `"<proto.marshal.collections.maps.MapComposite...>"`.
+- Modification: Rewrote the `SearchChunk` deserializer in `services/rag.py` and 
+  `protected/rag.py` to extract `extractive_segments` and `snippets` fields from 
+  the dynamic dictionary representations of SearchResult documents.
+- Result: Resolved chunk serialization hole. Document text segments now serialize 
+  and render cleanly as plain-text.
+
+--------------------------------------------------------------------------------
+STEP 10: Single-Page Web Console Deployment
+--------------------------------------------------------------------------------
+- Action: I mounted a single-page premium web console interface at root path `/` 
+  in `main.py` and packaged it inside the docker container copy context.
+- Result: Users can now access the full GUI interactive console directly in the 
+  web browser at the deployed service URL.
 
 ================================================================================
 Forensic Audit complete. All hotfixes are active and verified on Cloud Run.
