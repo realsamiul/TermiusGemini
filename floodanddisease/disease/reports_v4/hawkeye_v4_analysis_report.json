@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "system": "HawkEye Omega v4 - Pragmatic Edition (Corrected)",
+    "timestamp": "2025-09-29T06:49:05.435260",
+    "location": "Dhaka, Bangladesh",
+    "coordinates": {
+      "lat": 23.8103,
+      "lon": 90.4125
+    }
+  },
+  "data_summary": {
+    "records_analyzed": 1105,
+    "date_range": {
+      "start": "2022-01-01 00:00:00",
+      "end": "2025-09-01 00:00:00"
+    },
+    "features": 36,
+    "missing_data_percentage": 0.1583710407239819
+  },
+  "analysis_results": {
+    "live_weather": {
+      "temperature": 28.8,
+      "humidity": 74,
+      "pressure": 1006,
+      "description": "scattered clouds",
+      "mosquito_risk": "HIGH",
+      "risk_score": 0.8
+    },
+    "correlations": {
+      "temperature_disease": {
+        "correlation": 0.32443643852129533,
+        "p_value": 1.6874337101560752e-28,
+        "significant": "True",
+        "sample_size": 1105
+      },
+      "economic_disease": {
+        "correlation": -0.5735931276631385,
+        "p_value": 1.1360100547218221e-97,
+        "significant": "True",
+        "sample_size": 1105
+      },
+      "best_lag": {
+        "lag_days": 7,
+        "correlation": 0.32676654702561353,
+        "interpretation": "Temperature changes affect disease with 7-day delay"
+      }
+    },
+    "statistics": {
+      "disease": {
+        "total_cases": 33803,
+        "daily_average": 30.590950226244345,
+        "daily_max": 181,
+        "daily_min": 2,
+        "standard_deviation": 31.782479528569407,
+        "current_trend": "decreasing"
+      },
+      "temperature": {
+        "mean": 24.338733031674206,
+        "std": 4.9553460943789185,
+        "min": 13.3,
+        "max": 34.0,
+        "current": 19.2
+      },
+      "humidity": {
+        "mean": 75.310407239819,
+        "std": 10.921513899941445,
+        "min": 32.0,
+        "max": 97.0,
+        "current": 84.0
+      },
+      "rainfall": {
+        "mean": 3.132126696832579,
+        "std": 13.504250186510742,
+        "min": 0.0,
+        "max": 255.0,
+        "current": 0.0
+      }
+    },
+    "forecast": {
+      "values": [
+        0.0080035513110065,
+        0.00892421181207589,
+        0.009782231734221233,
+        0.010518610941276312,
+        0.011081418613289944,
+        0.011428811277020695,
+        0.011531464596506837,
+        0.011374277596882816,
+        0.010957250278148638,
+        0.010295483615169847,
+        0.009418301943908176,
+        0.008367548737605056,
+        0.0071951548162116725,
+        0.005960120315894243
+      ],
+      "trend": "decreasing",
+      "slope": -0.00015718699962401976,
+      "peak_day": 7,
+      "peak_value": 0.011531464596506837,
+      "confidence_note": "Simple trend projection - high uncertainty"
+    },
+    "satellite_data": {
+      "nightlight_radiance_2024": 23.75492611505699,
+      "nightlight_radiance_2023": 21.52549589833078,
+      "year_over_year_change": 10.357160769982961,
+      "economic_proxy": 23754.926115056987,
+      "economic_trend": "increasing"
+    }
+  },
+  "economic_impacts": {
+    "healthcare_cost": 5070450.0,
+    "productivity_loss": 10140900.0,
+    "total_impact": 15211350.0,
+    "prevention_cost": 205606256.65974873,
+    "potential_savings": 7605675.0,
+    "roi_percentage": -96.30085430105058
+  },
+  "key_findings": [
+    "Disease trend is currently decreasing",
+    "Significant correlation found: temperature_disease (r=0.324)",
+    "Significant correlation found: economic_disease (r=-0.574)",
+    "Economic activity trend: increasing (+10.4% year-over-year)"
+  ],
+  "limitations": [
+    "Simple trend-based forecasting (not machine learning)",
+    "Limited to available historical data",
+    "Correlations do not imply causation",
+    "Economic estimates based on WHO averages"
+  ]
+}

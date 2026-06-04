@@ -1,0 +1,24 @@
+# Ignore Python compiler caches
+**/__pycache__/
+**/*.pyc
+
+# Ignore massive satellite tile folders and processed raw data
+**/data/
+**/outputs/
+**/*.npy
+**/*.npz
+
+# Ignore heavy binary formats and document standards
+**/*.xlsx
+**/*.xls
+**/*.pdf
+**/*.zip
+**/*.tar.gz
+
+# Ignore heavy visualizations, plots, and maps
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.tif
+**/*.tiff

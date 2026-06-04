@@ -1,0 +1,19 @@
+HAWKEYE OMEGA v2.6 - EXECUTIVE BRIEFING
+Report Generated: 2025-09-29 06:46:57
+======================================================================
+
+--- CURRENT RISK DASHBOARD ---
+  - Live Mosquito Risk Index: HIGH
+    (Based on Temp: 27.0°C, Humidity: 94%)
+  - Recent Case Trend (7-day avg): Decreasing/Stable
+  - Forecasted Peak: 0.0 cases/100k around 2025-09-30
+
+--- HISTORICAL ANALYSIS & ECONOMIC BURDEN ---
+  - Total Cases Analyzed (Dhaka): 33,806
+  - High-Confidence Causal Links Found: 0
+  - Estimated Economic Burden to Date: $21,973,900 USD
+    (NOTE: Estimate based on $150/case treatment & $500/case productivity loss)
+
+--- MACROECONOMIC CONTEXT ---
+  - Latest Annual GDP Growth Rate: 4.22%
+  - Latest Annual Inflation Rate: 10.47%

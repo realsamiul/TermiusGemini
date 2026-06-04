@@ -1,0 +1,247 @@
+2025-09-28 20:54:03,216 - INFO - Starting comprehensive dengue data download...
+2025-09-28 20:54:03,216 - INFO - Target URL: https://old.dghs.gov.bd/index.php/bd/home/5200-daily-dengue-status-report
+2025-09-28 20:54:04,291 - INFO - Found 1381 potential download links
+2025-09-28 20:54:04,291 - INFO - Filtered to 1091 links within 2022-2024 range
+2025-09-28 21:01:48,648 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20240617_dengue_all.pdf: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-09-28 21:02:09,585 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20240616_dengue_all.pdf: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+2025-09-28 21:14:33,507 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20230916_dengue_all.pdf: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+2025-09-28 21:22:04,647 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20230216_dengue_all.pdf: 404 Client Error: Not Found for url: https://old.dghs.gov.bd/images/docs/vpr/20230216_dengue_all.pdf
+2025-09-28 21:22:58,813 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20230126_dengue_all.pdf: 404 Client Error: Not Found for url: https://old.dghs.gov.bd/images/docs/vpr/20230126_dengue_all.pdf
+2025-09-28 21:23:35,152 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20230111_dengue_all.pdf: 404 Client Error: Not Found for url: https://old.dghs.gov.bd/images/docs/vpr/20230111_dengue_all.pdf
+2025-09-28 21:26:45,892 - INFO - Processing 785/1091: Dengue Press Release 02/11/2022
+2025-09-28 21:26:47,389 - INFO - Downloaded: 2022-11-02_Dengue_Press_Release_02112022.pdf (801488 bytes)
+2025-09-28 21:26:48,391 - INFO - Processing 786/1091: Dengue Press Release 01/11/2022
+2025-09-28 21:26:51,053 - INFO - Downloaded: 2022-11-01_Dengue_Press_Release_01112022.pdf (1179795 bytes)
+2025-09-28 21:26:52,054 - INFO - Processing 787/1091: Dengue Press Release 31/10/2022
+2025-09-28 21:26:53,502 - INFO - Downloaded: 2022-10-31_Dengue_Press_Release_31102022.pdf (932438 bytes)
+2025-09-28 21:26:54,503 - INFO - Processing 788/1091: Dengue Press Release 30/10/2022
+2025-09-28 21:26:56,051 - INFO - Downloaded: 2022-10-30_Dengue_Press_Release_30102022.pdf (804888 bytes)
+2025-09-28 21:26:57,053 - INFO - Processing 789/1091: Dengue Press Release 29/10/2022
+2025-09-28 21:26:59,866 - INFO - Downloaded: 2022-10-29_Dengue_Press_Release_29102022.pdf (815617 bytes)
+2025-09-28 21:27:00,866 - INFO - Processing 790/1091: Dengue Press Release 28/10/2022
+2025-09-28 21:27:01,806 - INFO - Downloaded: 2022-10-28_Dengue_Press_Release_28102022.pdf (817069 bytes)
+2025-09-28 21:27:02,807 - INFO - Processing 791/1091: Dengue Press Release 27/10/2022
+2025-09-28 21:27:04,540 - INFO - Downloaded: 2022-10-27_Dengue_Press_Release_27102022.pdf (818768 bytes)
+2025-09-28 21:27:05,541 - INFO - Processing 792/1091: Dengue Press Release 26/10/2022
+2025-09-28 21:27:06,998 - INFO - Downloaded: 2022-10-26_Dengue_Press_Release_26102022.pdf (820577 bytes)
+2025-09-28 21:27:08,000 - INFO - Processing 793/1091: Dengue Press Release 25/10/2022
+2025-09-28 21:27:10,026 - INFO - Downloaded: 2022-10-25_Dengue_Press_Release_25102022.pdf (819307 bytes)
+2025-09-28 21:27:11,027 - INFO - Processing 794/1091: Dengue Press Release 24/10/2022
+2025-09-28 21:27:13,365 - INFO - Downloaded: 2022-10-24_Dengue_Press_Release_24102022.pdf (816719 bytes)
+2025-09-28 21:27:14,366 - INFO - Processing 795/1091: Dengue Press Release 23/10/2022
+2025-09-28 21:27:16,640 - INFO - Downloaded: 2022-10-23_Dengue_Press_Release_23102022.pdf (1173705 bytes)
+2025-09-28 21:27:17,641 - INFO - Processing 796/1091: Dengue Press Release 22/10/2022
+2025-09-28 21:27:20,014 - INFO - Downloaded: 2022-10-22_Dengue_Press_Release_22102022.pdf (1108750 bytes)
+2025-09-28 21:27:21,015 - INFO - Processing 797/1091: Dengue Press Release 21/10/2022
+2025-09-28 21:27:23,453 - INFO - Downloaded: 2022-10-21_Dengue_Press_Release_21102022.pdf (1192359 bytes)
+2025-09-28 21:27:24,454 - INFO - Processing 798/1091: Dengue Press Release 20/10/2022
+2025-09-28 21:27:27,810 - INFO - Downloaded: 2022-10-20_Dengue_Press_Release_20102022.pdf (809502 bytes)
+2025-09-28 21:27:28,812 - INFO - Processing 799/1091: Dengue Press Release 19/10/2022
+2025-09-28 21:27:34,428 - INFO - Downloaded: 2022-10-19_Dengue_Press_Release_19102022.pdf (833049 bytes)
+2025-09-28 21:27:35,429 - INFO - Processing 800/1091: Dengue Press Release 18/10/2022
+2025-09-28 21:27:40,579 - INFO - Downloaded: 2022-10-18_Dengue_Press_Release_18102022.pdf (825677 bytes)
+2025-09-28 21:27:41,580 - INFO - Processing 801/1091: Dengue Press Release 17/10/2022
+2025-09-28 21:27:43,428 - INFO - Downloaded: 2022-10-17_Dengue_Press_Release_17102022.pdf (834501 bytes)
+2025-09-28 21:27:44,429 - INFO - Processing 802/1091: Dengue Press Release 16/10/2022
+2025-09-28 21:27:46,516 - INFO - Downloaded: 2022-10-16_Dengue_Press_Release_16102022.pdf (848485 bytes)
+2025-09-28 21:27:47,517 - INFO - Processing 803/1091: Dengue Press Release 15/10/2022
+2025-09-28 21:27:49,924 - INFO - Downloaded: 2022-10-15_Dengue_Press_Release_15102022.pdf (1216217 bytes)
+2025-09-28 21:27:50,925 - INFO - Processing 804/1091: Dengue Press Release 14/10/2022
+2025-09-28 21:27:53,101 - INFO - Downloaded: 2022-10-14_Dengue_Press_Release_14102022.pdf (1121875 bytes)
+2025-09-28 21:27:54,102 - INFO - Processing 805/1091: Dengue Press Release 13/10/2022
+2025-09-28 21:27:55,558 - INFO - Downloaded: 2022-10-13_Dengue_Press_Release_13102022.pdf (825063 bytes)
+2025-09-28 21:27:56,559 - INFO - Processing 806/1091: Dengue Press Release 12/10/2022
+2025-09-28 21:27:58,834 - INFO - Downloaded: 2022-10-12_Dengue_Press_Release_12102022.pdf (855120 bytes)
+2025-09-28 21:27:59,836 - INFO - Processing 807/1091: Dengue Press Release 11/10/2022
+2025-09-28 21:28:01,213 - INFO - Downloaded: 2022-10-11_Dengue_Press_Release_11102022.pdf (844850 bytes)
+2025-09-28 21:28:02,214 - INFO - Processing 808/1091: Dengue Press Release 10/10/2022
+2025-09-28 21:28:05,538 - INFO - Downloaded: 2022-10-10_Dengue_Press_Release_10102022.pdf (820970 bytes)
+2025-09-28 21:28:06,539 - INFO - Processing 809/1091: Dengue Press Release 09/10/2022
+2025-09-28 21:28:08,394 - INFO - Downloaded: 2022-10-09_Dengue_Press_Release_09102022.pdf (846026 bytes)
+2025-09-28 21:28:09,395 - INFO - Processing 810/1091: Dengue Press Release 08/10/2022
+2025-09-28 21:28:11,393 - INFO - Downloaded: 2022-10-08_Dengue_Press_Release_08102022.pdf (844224 bytes)
+2025-09-28 21:28:12,395 - INFO - Processing 811/1091: Dengue Press Release 07/10/2022
+2025-09-28 21:28:14,809 - INFO - Downloaded: 2022-10-07_Dengue_Press_Release_07102022.pdf (1116494 bytes)
+2025-09-28 21:28:15,809 - INFO - Processing 812/1091: Dengue Press Release 06/10/2022
+2025-09-28 21:28:17,087 - INFO - Downloaded: 2022-10-06_Dengue_Press_Release_06102022.pdf (822764 bytes)
+2025-09-28 21:28:18,088 - INFO - Processing 813/1091: Dengue Press Release 05/10/2022
+2025-09-28 21:28:20,172 - INFO - Downloaded: 2022-10-05_Dengue_Press_Release_05102022.pdf (822642 bytes)
+2025-09-28 21:28:21,173 - INFO - Processing 814/1091: Dengue Press Release 04/10/2022
+2025-09-28 21:28:22,084 - INFO - Downloaded: 2022-10-04_Dengue_Press_Release_04102022.pdf (685986 bytes)
+2025-09-28 21:28:23,085 - INFO - Processing 815/1091: Dengue Press Release 03/10/2022
+2025-09-28 21:28:24,465 - INFO - Downloaded: 2022-10-03_Dengue_Press_Release_03102022.pdf (823865 bytes)
+2025-09-28 21:28:25,467 - INFO - Processing 816/1091: Dengue Press Release 02/10/2022
+2025-09-28 21:28:27,260 - INFO - Downloaded: 2022-10-02_Dengue_Press_Release_02102022.pdf (1274704 bytes)
+2025-09-28 21:28:28,262 - INFO - Processing 817/1091: Dengue Press Release 01/10/2022
+2025-09-28 21:28:30,183 - INFO - Downloaded: 2022-10-01_Dengue_Press_Release_01102022.pdf (1273942 bytes)
+2025-09-28 21:28:31,184 - INFO - Processing 818/1091: Dengue Press Release 30/09/2022
+2025-09-28 21:28:33,446 - INFO - Downloaded: 2022-09-30_Dengue_Press_Release_30092022.pdf (1272210 bytes)
+2025-09-28 21:28:34,447 - INFO - Processing 819/1091: Dengue Press Release 29/09/2022
+2025-09-28 21:28:35,695 - INFO - Downloaded: 2022-09-29_Dengue_Press_Release_29092022.pdf (919292 bytes)
+2025-09-28 21:28:36,696 - INFO - Processing 820/1091: Dengue Press Release 28/09/2022
+2025-09-28 21:28:38,048 - INFO - Downloaded: 2022-09-28_Dengue_Press_Release_28092022.pdf (919925 bytes)
+2025-09-28 21:28:39,049 - INFO - Processing 821/1091: Dengue Press Release 27/09/2022
+2025-09-28 21:28:40,645 - INFO - Downloaded: 2022-09-27_Dengue_Press_Release_27092022.pdf (903126 bytes)
+2025-09-28 21:28:41,646 - INFO - Processing 822/1091: Dengue Press Release 26/09/2022
+2025-09-28 21:28:44,508 - INFO - Downloaded: 2022-09-26_Dengue_Press_Release_26092022.pdf (1281978 bytes)
+2025-09-28 21:28:45,510 - INFO - Processing 823/1091: Dengue Press Release 25/09/2022
+2025-09-28 21:28:47,130 - INFO - Downloaded: 2022-09-25_Dengue_Press_Release_25092022.pdf (924641 bytes)
+2025-09-28 21:28:48,131 - INFO - Processing 824/1091: Dengue Press Release 24/09/2022
+2025-09-28 21:28:50,514 - INFO - Downloaded: 2022-09-24_Dengue_Press_Release_24092022.pdf (1198523 bytes)
+2025-09-28 21:28:51,515 - INFO - Processing 825/1091: Dengue Press Release 23/09/2022
+2025-09-28 21:28:52,735 - INFO - Downloaded: 2022-09-23_Dengue_Press_Release_23092022.pdf (1045866 bytes)
+2025-09-28 21:28:53,735 - INFO - Processing 826/1091: Dengue Press Release 22/09/2022
+2025-09-28 21:28:56,695 - INFO - Downloaded: 2022-09-22_Dengue_Press_Release_22092022.pdf (1279311 bytes)
+2025-09-28 21:28:57,696 - INFO - Processing 827/1091: Dengue Press Release 21/09/2022
+2025-09-28 21:28:59,837 - INFO - Downloaded: 2022-09-21_Dengue_Press_Release_21092022.pdf (1280126 bytes)
+2025-09-28 21:29:00,838 - INFO - Processing 828/1091: Dengue Press Release 20/09/2022
+2025-09-28 21:29:03,018 - INFO - Downloaded: 2022-09-20_Dengue_Press_Release_20092022.pdf (1281134 bytes)
+2025-09-28 21:29:04,019 - INFO - Processing 829/1091: Dengue Press Release 19/09/2022
+2025-09-28 21:29:06,787 - INFO - Downloaded: 2022-09-19_Dengue_Press_Release_19092022.pdf (1282762 bytes)
+2025-09-28 21:29:07,787 - INFO - Processing 830/1091: Dengue Press Release 18/09/2022
+2025-09-28 21:29:09,449 - INFO - Downloaded: 2022-09-18_Dengue_Press_Release_18092022.pdf (926922 bytes)
+2025-09-28 21:29:10,451 - INFO - Processing 831/1091: Dengue Press Release 17/09/2022
+2025-09-28 21:29:11,863 - INFO - Downloaded: 2022-09-17_Dengue_Press_Release_17092022.pdf (1046536 bytes)
+2025-09-28 21:29:12,864 - INFO - Processing 832/1091: Dengue Press Release 16/09/2022
+2025-09-28 21:29:13,896 - INFO - Downloaded: 2022-09-16_Dengue_Press_Release_16092022.pdf (1045786 bytes)
+2025-09-28 21:29:14,897 - INFO - Processing 833/1091: Dengue Press Release 15/09/2022
+2025-09-28 21:29:16,604 - INFO - Downloaded: 2022-09-15_Dengue_Press_Release_15092022.pdf (1281315 bytes)
+2025-09-28 21:29:17,605 - INFO - Processing 834/1091: Dengue Press Release 14/09/2022
+2025-09-28 21:29:19,245 - INFO - Downloaded: 2022-09-14_Dengue_Press_Release_14092022.pdf (1281910 bytes)
+2025-09-28 21:29:20,246 - INFO - Processing 835/1091: Dengue Press Release 13/09/2022
+2025-09-28 21:29:21,569 - INFO - Downloaded: 2022-09-13_Dengue_Press_Release_13092022.pdf (902351 bytes)
+2025-09-28 21:29:22,570 - INFO - Processing 836/1091: Dengue Press Release 12/09/2022
+2025-09-28 21:29:23,672 - INFO - Downloaded: 2022-09-12_Dengue_Press_Release_12092022.pdf (900976 bytes)
+2025-09-28 21:29:24,673 - INFO - Processing 837/1091: Dengue Press Release 11/09/2022
+2025-09-28 21:29:26,916 - INFO - Downloaded: 2022-09-11_Dengue_Press_Release_11092022.pdf (1283714 bytes)
+2025-09-28 21:29:27,918 - INFO - Processing 838/1091: Dengue Press Release 10/09/2022
+2025-09-28 21:29:30,119 - INFO - Downloaded: 2022-09-10_Dengue_Press_Release_10092022.pdf (896377 bytes)
+2025-09-28 21:29:31,120 - INFO - Processing 839/1091: Dengue Press Release 09/09/2022
+2025-09-28 21:29:33,168 - INFO - Downloaded: 2022-09-09_Dengue_Press_Release_09092022.pdf (1190656 bytes)
+2025-09-28 21:29:34,169 - INFO - Processing 840/1091: Dengue Press Release 08/09/2022
+2025-09-28 21:29:35,745 - INFO - Downloaded: 2022-09-08_Dengue_Press_Release_08092022.pdf (1150786 bytes)
+2025-09-28 21:29:36,745 - INFO - Processing 841/1091: Dengue Press Release 07/09/2022
+2025-09-28 21:29:38,035 - INFO - Downloaded: 2022-09-07_Dengue_Press_Release_07092022.pdf (919249 bytes)
+2025-09-28 21:29:39,036 - INFO - Processing 842/1091: Dengue Press Release 06/09/2022
+2025-09-28 21:29:40,626 - INFO - Downloaded: 2022-09-06_Dengue_Press_Release_06092022.pdf (902434 bytes)
+2025-09-28 21:29:41,627 - INFO - Processing 843/1091: Dengue Press Release 05/09/2022
+2025-09-28 21:29:43,499 - INFO - Downloaded: 2022-09-05_Dengue_Press_Release_05092022.pdf (1287252 bytes)
+2025-09-28 21:29:44,500 - INFO - Processing 844/1091: Dengue Press Release 04/09/2022
+2025-09-28 21:29:46,456 - INFO - Downloaded: 2022-09-04_Dengue_Press_Release_04092022.pdf (902190 bytes)
+2025-09-28 21:29:47,458 - INFO - Processing 845/1091: Dengue Press Release 03/09/2022
+2025-09-28 21:29:50,011 - INFO - Downloaded: 2022-09-03_Dengue_Press_Release_03092022.pdf (1026898 bytes)
+2025-09-28 21:29:51,012 - INFO - Processing 846/1091: Dengue Press Release 02/09/2022
+2025-09-28 21:29:53,468 - INFO - Downloaded: 2022-09-02_Dengue_Press_Release_02092022.pdf (1262090 bytes)
+2025-09-28 21:29:54,469 - INFO - Processing 847/1091: Dengue Press Release 01/09/2022
+2025-09-28 21:29:58,124 - INFO - Downloaded: 2022-09-01_Dengue_Press_Release_01092022.pdf (1185599 bytes)
+2025-09-28 21:29:59,125 - INFO - Processing 848/1091: Dengue Press Release 31/08/2022
+2025-09-28 21:30:01,233 - INFO - Downloaded: 2022-08-31_Dengue_Press_Release_31082022.pdf (911402 bytes)
+2025-09-28 21:30:02,234 - INFO - Processing 849/1091: Dengue Press Release 30/08/2022
+2025-09-28 21:30:05,053 - INFO - Downloaded: 2022-08-30_Dengue_Press_Release_30082022.pdf (896009 bytes)
+2025-09-28 21:30:06,055 - INFO - Processing 850/1091: Dengue Press Release 29/08/2022
+2025-09-28 21:30:08,264 - INFO - Downloaded: 2022-08-29_Dengue_Press_Release_29082022.pdf (852255 bytes)
+2025-09-28 21:30:09,265 - INFO - Processing 851/1091: Dengue Press Release 28/08/2022
+2025-09-28 21:30:11,725 - INFO - Downloaded: 2022-08-28_Dengue_Press_Release_28082022.pdf (863158 bytes)
+2025-09-28 21:30:12,726 - INFO - Processing 852/1091: Dengue Press Release 27/08/2022
+2025-09-28 21:30:15,106 - INFO - Downloaded: 2022-08-27_Dengue_Press_Release_27082022.pdf (1251498 bytes)
+2025-09-28 21:30:16,106 - INFO - Processing 853/1091: Dengue Press Release 26/08/2022
+2025-09-28 21:30:17,930 - INFO - Downloaded: 2022-08-26_Dengue_Press_Release_26082022.pdf (1250981 bytes)
+2025-09-28 21:30:18,931 - INFO - Processing 854/1091: Dengue Press Release 25/08/2022
+2025-09-28 21:30:20,766 - INFO - Downloaded: 2022-08-25_Dengue_Press_Release_25082022.pdf (842544 bytes)
+2025-09-28 21:30:21,768 - INFO - Processing 855/1091: Dengue Press Release 24/08/2022
+2025-09-28 21:30:24,018 - INFO - Downloaded: 2022-08-24_Dengue_Press_Release_24082022.pdf (1246545 bytes)
+2025-09-28 21:30:25,019 - INFO - Processing 856/1091: Dengue Press Release 23/08/2022
+2025-09-28 21:30:26,769 - INFO - Downloaded: 2022-08-23_Dengue_Press_Release_23082022.pdf (840114 bytes)
+2025-09-28 21:30:27,770 - INFO - Processing 857/1091: Dengue Press Release 22/08/2022
+2025-09-28 21:30:29,999 - INFO - Downloaded: 2022-08-22_Dengue_Press_Release_22082022.pdf (839293 bytes)
+2025-09-28 21:30:31,001 - INFO - Processing 858/1091: Dengue Press Release 21/08/2022
+2025-09-28 21:30:32,663 - INFO - Downloaded: 2022-08-21_Dengue_Press_Release_21082022.pdf (1249178 bytes)
+2025-09-28 21:30:33,664 - INFO - Processing 859/1091: Dengue Press Release 20/08/2022
+2025-09-28 21:30:36,260 - INFO - Downloaded: 2022-08-20_Dengue_Press_Release_20082022.pdf (1248413 bytes)
+2025-09-28 21:30:37,261 - INFO - Processing 860/1091: Dengue Press Release 19/08/2022
+2025-09-28 21:30:39,223 - INFO - Downloaded: 2022-08-19_Dengue_Press_Release_19082022.pdf (928827 bytes)
+2025-09-28 21:30:40,224 - INFO - Processing 861/1091: Dengue Press Release 18/08/2022
+2025-09-28 21:30:41,535 - INFO - Downloaded: 2022-08-18_Dengue_Press_Release_18082022.pdf (841462 bytes)
+2025-09-28 21:30:42,537 - INFO - Processing 862/1091: Dengue Press Release 17/08/2022
+2025-09-28 21:30:45,085 - INFO - Downloaded: 2022-08-17_Dengue_Press_Release_17082022.pdf (1323667 bytes)
+2025-09-28 21:30:46,086 - INFO - Processing 863/1091: Dengue Press Release 16/08/2022
+2025-09-28 21:30:47,200 - INFO - Downloaded: 2022-08-16_Dengue_Press_Release_16082022.pdf (841388 bytes)
+2025-09-28 21:30:48,201 - INFO - Processing 864/1091: Dengue Press Release 15/08/2022
+2025-09-28 21:30:50,931 - INFO - Downloaded: 2022-08-15_Dengue_Press_Release_15082022.pdf (1244919 bytes)
+2025-09-28 21:30:51,933 - INFO - Processing 865/1091: Dengue Press Release 14/08/2022
+2025-09-28 21:30:53,602 - INFO - Downloaded: 2022-08-14_Dengue_Press_Release_14082022.pdf (872082 bytes)
+2025-09-28 21:30:54,603 - INFO - Processing 866/1091: Dengue Press Release 13/08/2022
+2025-09-28 21:30:56,684 - INFO - Downloaded: 2022-08-13_Dengue_Press_Release_13082022.pdf (873231 bytes)
+2025-09-28 21:30:57,685 - INFO - Processing 867/1091: Dengue Press Release 12/08/2022
+2025-09-28 21:31:00,765 - INFO - Downloaded: 2022-08-12_Dengue_Press_Release_12082022.pdf (893339 bytes)
+2025-09-28 21:31:01,766 - INFO - Processing 868/1091: Dengue Press Release 11/08/2022
+2025-09-28 21:31:03,526 - INFO - Downloaded: 2022-08-11_Dengue_Press_Release_11082022.pdf (848589 bytes)
+2025-09-28 21:31:04,528 - INFO - Processing 869/1091: Dengue Press Release 10/08/2022
+2025-09-28 21:31:07,038 - INFO - Downloaded: 2022-08-10_Dengue_Press_Release_10082022.pdf (1233847 bytes)
+2025-09-28 21:31:08,039 - INFO - Processing 870/1091: Dengue Press Release 09/08/2022
+2025-09-28 21:31:10,565 - INFO - Downloaded: 2022-08-09_Dengue_Press_Release_09082022.pdf (1231174 bytes)
+2025-09-28 21:31:11,566 - INFO - Processing 871/1091: Dengue Press Release 08/08/2022
+2025-09-28 21:31:13,305 - INFO - Downloaded: 2022-08-08_Dengue_Press_Release_08082022.pdf (1230098 bytes)
+2025-09-28 21:31:14,306 - INFO - Processing 872/1091: Dengue Press Release 07/08/2022
+2025-09-28 21:31:16,536 - INFO - Downloaded: 2022-08-07_Dengue_Press_Release_07082022.pdf (1170217 bytes)
+2025-09-28 21:31:17,537 - INFO - Processing 873/1091: Dengue Press Release 06/08/2022
+2025-09-28 21:31:19,402 - INFO - Downloaded: 2022-08-06_Dengue_Press_Release_06082022.pdf (879000 bytes)
+2025-09-28 21:31:20,403 - INFO - Processing 874/1091: Dengue Press Release 05/08/2022
+2025-09-28 21:31:22,573 - INFO - Downloaded: 2022-08-05_Dengue_Press_Release_05082022.pdf (878664 bytes)
+2025-09-28 21:31:23,574 - INFO - Processing 875/1091: Dengue Press Release 04/08/2022
+2025-09-28 21:31:25,916 - INFO - Downloaded: 2022-08-04_Dengue_Press_Release_04082022.pdf (878574 bytes)
+2025-09-28 21:31:26,917 - INFO - Processing 876/1091: Dengue Press Release 03/08/2022
+2025-09-28 21:31:28,650 - INFO - Downloaded: 2022-08-03_Dengue_Press_Release_03082022.pdf (821382 bytes)
+2025-09-28 21:31:29,651 - INFO - Processing 877/1091: Dengue Press Release 02/08/2022
+2025-09-28 21:31:31,486 - INFO - Downloaded: 2022-08-02_Dengue_Press_Release_02082022.pdf (819872 bytes)
+2025-09-28 21:31:32,487 - INFO - Processing 878/1091: Dengue Press Release 01/08/2022
+2025-09-28 21:31:35,083 - INFO - Downloaded: 2022-08-01_Dengue_Press_Release_01082022.pdf (851253 bytes)
+2025-09-28 21:31:36,085 - INFO - Processing 879/1091: Dengue Press Release 31/07/2022
+2025-09-28 21:31:37,235 - INFO - Downloaded: 2022-07-31_Dengue_Press_Release_31072022.pdf (820252 bytes)
+2025-09-28 21:31:38,236 - INFO - Processing 880/1091: Dengue Press Release 30/07/2022
+2025-09-28 21:31:40,118 - INFO - Downloaded: 2022-07-30_Dengue_Press_Release_30072022.pdf (820502 bytes)
+2025-09-28 21:31:41,119 - INFO - Processing 881/1091: Dengue Press Release 29/07/2022
+2025-09-28 21:31:42,488 - INFO - Downloaded: 2022-07-29_Dengue_Press_Release_29072022.pdf (818509 bytes)
+2025-09-28 21:31:43,489 - INFO - Processing 882/1091: Dengue Press Release 28/07/2022
+2025-09-28 21:31:45,681 - INFO - Downloaded: 2022-07-28_Dengue_Press_Release_28072022.pdf (818664 bytes)
+2025-09-28 21:31:46,682 - INFO - Processing 883/1091: Dengue Press Release 27/07/2022
+2025-09-28 21:31:49,093 - INFO - Downloaded: 2022-07-27_Dengue_Press_Release_27072022.pdf (806315 bytes)
+2025-09-28 21:31:50,094 - INFO - Processing 884/1091: Dengue Press Release 26/07/2022
+2025-09-28 21:31:52,029 - INFO - Downloaded: 2022-07-26_Dengue_Press_Release_26072022.pdf (807112 bytes)
+2025-09-28 21:31:53,030 - INFO - Processing 885/1091: Dengue Press Release 25/07/2022
+2025-09-28 21:31:54,727 - INFO - Downloaded: 2022-07-25_Dengue_Press_Release_25072022.pdf (805766 bytes)
+2025-09-28 21:31:55,728 - INFO - Processing 886/1091: Dengue Press Release 24/07/2022
+2025-09-28 21:31:56,994 - INFO - Downloaded: 2022-07-24_Dengue_Press_Release_24072022.pdf (809118 bytes)
+2025-09-28 21:31:57,994 - INFO - Processing 887/1091: Dengue Press Release 23/07/2022
+2025-09-28 21:32:00,387 - INFO - Downloaded: 2022-07-23_Dengue_Press_Release_23072022.pdf (840925 bytes)
+2025-09-28 21:32:01,388 - INFO - Processing 888/1091: Dengue Press Release 22/07/2022
+2025-09-28 21:32:02,830 - INFO - Downloaded: 2022-07-22_Dengue_Press_Release_22072022.pdf (846276 bytes)
+2025-09-28 21:32:03,831 - INFO - Processing 889/1091: Dengue Press Release 21/07/2022
+2025-09-28 21:32:05,696 - INFO - Downloaded: 2022-07-21_Dengue_Press_Release_21072022.pdf (816783 bytes)
+2025-09-28 21:32:06,697 - INFO - Processing 890/1091: Dengue Press Release 20/07/2022
+2025-09-28 21:32:08,536 - INFO - Downloaded: 2022-07-20_Dengue_Press_Release_20072022.pdf (812822 bytes)
+2025-09-28 21:32:09,537 - INFO - Processing 891/1091: Dengue Press Release 19/07/2022
+2025-09-28 21:32:12,441 - INFO - Downloaded: 2022-07-19_Dengue_Press_Release_19072022.pdf (846442 bytes)
+2025-09-28 21:32:13,442 - INFO - Processing 892/1091: Dengue Press Release 18/07/2022
+2025-09-28 21:32:16,088 - INFO - Downloaded: 2022-07-18_Dengue_Press_Release_18072022.pdf (813429 bytes)
+2025-09-28 21:32:17,089 - INFO - Processing 893/1091: Dengue Press Release 17/07/2022
+2025-09-28 21:32:19,263 - INFO - Downloaded: 2022-07-17_Dengue_Press_Release_17072022.pdf (815490 bytes)
+2025-09-28 21:32:20,264 - INFO - Processing 894/1091: Dengue Press Release 16/07/2022
+2025-09-28 21:32:21,945 - INFO - Downloaded: 2022-07-16_Dengue_Press_Release_16072022.pdf (821250 bytes)
+2025-09-28 21:32:22,947 - INFO - Processing 895/1091: Dengue Press Release 15/07/2022
+2025-09-28 21:32:25,659 - INFO - Downloaded: 2022-07-15_Dengue_Press_Release_15072022.pdf (814289 bytes)
+2025-09-28 21:32:26,660 - INFO - Processing 896/1091: Dengue Press Release 14/07/2022
+2025-09-28 21:32:28,748 - INFO - Downloaded: 2022-07-14_Dengue_Press_Release_14072022.pdf (835734 bytes)
+2025-09-28 21:32:29,749 - INFO - Processing 897/1091: Dengue Press Release 13/07/2022
+2025-09-28 21:32:31,662 - INFO - Downloaded: 2022-07-13_Dengue_Press_Release_13072022.pdf (824391 bytes)
+2025-09-28 21:32:32,663 - INFO - Processing 898/1091: Dengue Press Release 12/07/2022
+2025-09-28 21:32:34,713 - INFO - Downloaded: 2022-07-12_Dengue_Press_Release_12072022.pdf (821249 bytes)
+2025-09-28 21:32:35,713 - INFO - Processing 899/1091: Dengue Press Release 11/07/2022
+2025-09-28 21:32:36,919 - INFO - Downloaded: 2022-07-11_Dengue_Press_Release_11072022.pdf (820982 bytes)
+2025-09-28 21:32:37,920 - INFO - Processing 900/1091: Dengue Press Release 10/07/2022
+2025-09-28 21:32:39,747 - INFO - Downloaded: 2022-07-10_Dengue_Press_Release_10072022.pdf (821479 bytes)
+2025-09-28 21:32:40,751 - INFO - Processing 901/1091: Dengue Press Release 09/07/2022
+2025-09-28 21:32:41,892 - INFO - Downloaded: 2022-07-09_Dengue_Press_Release_09072022.pdf (823437 bytes)
+2025-09-28 21:41:59,255 - ERROR - Error downloading https://old.dghs.gov.bd/images/docs/vpr/20220125_dengue_all.pdf: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+2025-09-28 21:46:46,277 - INFO - Summary report created: dengue_reports_2022_2024\download_summary.txt
+2025-09-28 21:46:46,278 - INFO - Download complete! Success: 1084, Failed: 7
